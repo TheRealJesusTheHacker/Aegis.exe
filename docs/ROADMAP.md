@@ -277,10 +277,10 @@ content are wiped).
 
 ## Phase 5 — Hardening, the security audit gate, and packaging
 
-**Status: HARDENING AND PACKAGING COMPLETE (v1.0.0 release
-candidate, 2026-10-20); the independent security audit is IN
-PROGRESS and the gate has NOT passed yet. No public release
-ships before it does.**
+**Status: COMPLETE — THE GATE PASSED, AND v1.0.0 SHIPPED
+2026-10-20 (the first public release). The independent
+security audit's final verdict is PASS WITH DOCUMENTED
+RESIDUALS on the release candidate.**
 
 *As built so far:* the threat model is written
 (`docs/THREAT-MODEL.md`); the memory-handling review is done —
@@ -298,8 +298,12 @@ zip, and `SHA256SUMS.txt`; a dispatch run of that workflow is
 the end-to-end proof. The audit's first round returned no
 critical or high findings; its medium finding (work finishing
 after a lock still placed plain files) and three low findings
-are fixed in this version. Round 2 (the re-audit of the fixes)
-is the coordinator's to call, and the release waits for it.
+are fixed in this version. Round 2 (the re-audit) verified
+every fix live — the first round's lock-mid-work attack,
+re-run under its original timing, places nothing — and
+returned PASS WITH DOCUMENTED RESIDUALS with no open
+critical, high, medium, or low findings; the notes that
+remain are information-level and are recorded in the audit.
 
 **THE GATE: no public release of Aegis ships before this phase
 passes. This is a hard gate, not a milestone.**
@@ -321,7 +325,10 @@ passes. This is a hard gate, not a milestone.**
   pass.
 - **Packaging** — the kit's single self-installing exe pattern: one
   file, one admin prompt, self-placement, verified install, truthful
-  reporting in the interface.
+  reporting in the interface. *(As built: self-install is
+  per-user — no admin prompt — offered through the launcher's
+  `--install`, verified by read-back, with the outcome reported
+  plainly; the exe also runs without installing.)*
 - **Portable edition (named deliverable):** a portable no-install
   edition of Aegis — runs from a folder or USB drive with no
   installation, following the Argus Portable pattern
