@@ -15,6 +15,10 @@ Routing is deliberately small:
   that cannot open its own window fails there, not on a person's
   machine.
 - ``--version`` prints the version and exits.
+- ``--install`` / ``--uninstall`` put the packaged copy in place
+  (or remove it) using :mod:`packaging.install`-equivalent code
+  bundled beside this script as ``install.py``; installing is an
+  offer, never a gate — the app runs the same without it.
 """
 
 import sys
@@ -25,6 +29,21 @@ if __name__ == "__main__":
         from aegis.ui import self_check
 
         sys.exit(self_check())
+    if "--install" in argv or "--uninstall" in argv:
+        import os
+        sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+        import install as _install
+
+        if "--install" in argv:
+            ok, message = _install.install(
+                os.path.dirname(os.path.abspath(sys.executable))
+                if getattr(sys, "frozen", False)
+                else os.path.dirname(os.path.abspath(__file__))
+            )
+        else:
+            ok, message = _install.uninstall()
+        print(message)
+        sys.exit(0 if ok else 1)
     if "--version" in argv:
         import aegis
 
