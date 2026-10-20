@@ -2,7 +2,7 @@
 
 **Sentinel Safeguard LLC — file encryption and password manager for Windows.**
 
-[![Version](https://img.shields.io/badge/version-v0.3.0-2ee06f?style=flat-square)](https://github.com/TheRealJesusTheHacker/Aegis.exe/blob/main/aegis/__init__.py)
+[![Version](https://img.shields.io/badge/version-v0.4.0-2ee06f?style=flat-square)](https://github.com/TheRealJesusTheHacker/Aegis.exe/blob/main/aegis/__init__.py)
 [![Platform](https://img.shields.io/badge/platform-Windows-0078D6?style=flat-square&logo=windows&logoColor=white)](https://github.com/TheRealJesusTheHacker/Aegis.exe)
 [![Python](https://img.shields.io/badge/Python-3-3776AB?style=flat-square&logo=python&logoColor=white)](https://www.python.org/)
 [![License](https://img.shields.io/badge/license-Proprietary-b03a2e?style=flat-square)](https://github.com/TheRealJesusTheHacker/Aegis.exe/blob/main/LICENSE)
@@ -155,23 +155,27 @@ every control does what it says.
 
 ## Status
 
-**v0.3.0 — Phase 2 complete: the password vault.** The credential
-store stands on the Phase 1 core, exactly as the roadmap demands —
-the logins live inside an ordinary vault as one sealed item, opened
-by the same master password and recovery key, with no second
-cryptography anywhere. On top of it: a proper random password
-generator, fast search that never touches password values,
-copying with automatic clipboard clearing, and lock-on-idle, so
-walking away from an open vault is safe. Logins move only as
-sealed copies or vault-to-vault merges — never in plain text; the
-written safety review behind that decision is
-[docs/IMPORT-EXPORT-SAFETY.md](docs/IMPORT-EXPORT-SAFETY.md). The
-suite is now 257 tests, and Phase 2 went through the same
-adversarial self-audit cycle as Phase 1 before this version was
-cut. That self-audit does **not** replace the Phase 5 independent
-security audit gate: no public release ships before that gate
-passes. Next is Phase 3 — the Strongbox, Lock-and-send, and
-Lazarus's armor. The build order is in [docs/ROADMAP.md](docs/ROADMAP.md).
+**v0.4.0 — Phase 3 complete: the Strongbox, Lock-and-send, and
+Lazarus's armor.** The Strongbox is a compartment inside the vault
+for what isn't a login — recovery codes, keys, private notes, and
+document copies up to 10 MB each, checked against their recorded
+check values every time they are read. Lock-and-send seals one
+file with a password of its own for travel: the file's name stays
+inside the seal, the sealed file's name gives nothing away, and
+the flow copy says plainly that the password is the whole lock.
+Lazarus's armor seals a whole backup set into one `.aegis-armored`
+file and unseals it back byte for byte — whole at the boundary,
+neither tool reaching inside the other's format, exactly as the
+roadmap's interface point defines. Both standalone features share
+one construction re-shaped from the vault's — no new cryptography
+was invented — and each product's files open only at their own
+door: a vault, a send file, and an armored set are three formats,
+and no reader crosses them. The suite is now 369 tests, and
+Phase 3 went through the doubled adversarial self-audit cycle
+before this version was cut. That self-audit does **not** replace
+the Phase 5 independent security audit gate: no public release
+ships before that gate passes. Next is Phase 4 — the animated UI.
+The build order is in [docs/ROADMAP.md](docs/ROADMAP.md).
 
 ### Running the core and its tests
 
@@ -191,7 +195,10 @@ and nothing else in Aegis invents its own cryptography. The
 password vault is `aegis.CredentialStore(session)` over an open
 session, with `aegis.generate_password(...)`,
 `aegis.AutoClearClipboard(...)`, and `aegis.IdleGuard(...)`
-beside it.
+beside it. Phase 3 adds `aegis.Strongbox(session)` over the same
+session, `aegis.seal_file(...)` / `aegis.open_sealed_file(...)`
+for Lock-and-send, and `aegis.seal_tree(...)` /
+`aegis.unseal_tree(...)` for Lazarus's armor.
 
 A portable no-install edition (folder/USB, Argus Portable pattern) — including the portable password vault on a USB stick — is a named Phase 5 deliverable and will ship alongside the installer, after the security audit gate — see the roadmap.
 
