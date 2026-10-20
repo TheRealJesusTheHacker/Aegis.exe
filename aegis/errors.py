@@ -148,3 +148,104 @@ class InvalidEntryNameError(AegisError, ValueError):
         "That name can't be used in a vault. "
         "Keep it a simple file or folder name."
     )
+
+
+# -- Phase 3: the Strongbox ---------------------------------------------------
+
+
+class InvalidStrongboxEntryError(AegisError, ValueError):
+    """An item cannot be saved in the Strongbox as given."""
+
+    user_message = (
+        "That item can't be saved in the Strongbox. "
+        "Check the details and try again."
+    )
+
+
+class StrongboxNotFoundError(AegisError):
+    """The named item is not in the Strongbox."""
+
+    user_message = "That item isn't in the Strongbox."
+
+
+class StrongboxDamagedError(AegisError):
+    """The Strongbox list inside a vault fails its checks."""
+
+    user_message = (
+        "This vault's Strongbox doesn't check out — it has been "
+        "changed or damaged, so Aegis won't use it. Your other "
+        "items in this vault are not affected."
+    )
+
+
+class DocumentTooLargeError(AegisError):
+    """A document copy is bigger than the Strongbox holds."""
+
+    user_message = (
+        "That document is too big for the Strongbox — it holds "
+        "copies up to 10 MB each. For a bigger file, keep the "
+        "file itself in the vault instead."
+    )
+
+
+# -- Phase 3: standalone sealed files (Lock-and-send, Lazarus's armor) --------
+
+
+class WrongFilePasswordError(UnlockError):
+    """The password given does not open this sealed file."""
+
+    user_message = (
+        "That password doesn't open this file. Check it and try again."
+    )
+
+
+class SealedFormatError(AegisError):
+    """The file is not a standalone sealed file this copy can open."""
+
+    user_message = (
+        "This file isn't a sealed file Aegis can open — it may be "
+        "damaged, or it may not be an Aegis sealed file."
+    )
+
+
+class SealedTamperedError(AegisError):
+    """A sealed file opened, but its contents fail their checks."""
+
+    user_message = (
+        "This file's contents don't check out — it has been "
+        "changed or damaged, so Aegis won't open it."
+    )
+
+
+class SealedExistsError(AegisError):
+    """Something already exists where a sealed file would be written."""
+
+    user_message = (
+        "There's already something at that spot. Pick a different "
+        "name or place, or move what's there first."
+    )
+
+
+class SealedSaveError(AegisError):
+    """Writing a sealed file (or what it opens into) failed."""
+
+    user_message = (
+        "Aegis couldn't write that file. Make sure there's room "
+        "on the drive and the file isn't open somewhere else, "
+        "then try again."
+    )
+
+
+class SealedSourceError(AegisError):
+    """What was asked to be sealed cannot be sealed as given."""
+
+    user_message = "That can't be sealed. Check it and try again."
+
+
+class ArmorRefusalError(AegisError):
+    """A folder cannot be sealed into an armored set as it stands."""
+
+    user_message = (
+        "Aegis can't seal that folder as it is. "
+        "Check it and try again."
+    )
