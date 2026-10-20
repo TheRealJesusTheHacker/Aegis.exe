@@ -5,6 +5,7 @@ window does — open, lock, copy, idle, every flow — is proven here
 without a screen. All data is synthetic, per the house rules.
 """
 
+import os
 from pathlib import Path
 
 import pytest
@@ -281,10 +282,16 @@ def test_strongbox_intake_refuses_oversize_without_reading(open_controller, tmp_
 
 def test_strongbox_intake_refuses_hostile_names_and_folders(open_controller, tmp_path):
     controller, _ = open_controller
-    sneaky = tmp_path / "evil\\name.txt"  # a backslash in the name
-    sneaky.write_bytes(b"x")
-    with pytest.raises(InvalidStrongboxEntryError):
-        controller.add_document_from_path("Sneaky", sneaky)
+    if os.name != "nt":
+        # A backslash inside a file name: creatable on this
+        # platform, a path separator on Windows — there the same
+        # string can only arrive inside a sealed file, and the
+        # name check itself is pinned at the validator level by
+        # the Phase 5 hardening suite on every platform.
+        sneaky = tmp_path / "evil\\name.txt"  # a backslash in the name
+        sneaky.write_bytes(b"x")
+        with pytest.raises(InvalidStrongboxEntryError):
+            controller.add_document_from_path("Sneaky", sneaky)
     with pytest.raises(Exception) as caught:
         controller.add_document_from_path("A folder", tmp_path)
     assert "isn't a plain file" in user_text(caught.value)

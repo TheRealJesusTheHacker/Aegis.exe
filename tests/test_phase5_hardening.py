@@ -158,13 +158,13 @@ def test_session_lock_empties_held_contents(tmp_path):
 def test_no_raw_os_write_or_text_mode_binary_paths():
     offenders = []
     for py in (ROOT / "aegis").rglob("*.py"):
-        text = py.read_text()
+        text = py.read_text(encoding="utf-8", errors="replace")
         if "os.write(" in text:
             offenders.append(f"{py}: raw os.write")
         for m in re.finditer(r'open\([^)]*"(w|a|x)[^b"]*"\)', text):
             offenders.append(f"{py}: text-mode write open: {m.group(0)}")
     for py in (ROOT / "packaging").glob("*.py"):
-        text = py.read_text()
+        text = py.read_text(encoding="utf-8", errors="replace")
         if "os.write(" in text:
             offenders.append(f"{py}: raw os.write")
     assert offenders == []
