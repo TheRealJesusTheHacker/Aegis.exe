@@ -32,7 +32,8 @@ jobs:
       - name: KDF measurement (Windows runner)
         shell: python
         run: |
-          import time
+          import sys, time
+          sys.path.insert(0, ".")
           from aegis.kdf import DEFAULT_PARAMS, derive_key
           start = time.perf_counter()
           derive_key(b"synthetic measurement secret", b"\x01" * 16, DEFAULT_PARAMS)
