@@ -82,6 +82,38 @@ The heart of the product, built first and built carefully.
 
 ## Phase 2 — Password vault core
 
+**Status: COMPLETE — shipped as v0.3.0 (2026-10-20).**
+
+*As built:* the credential store is a convention inside the vault,
+not a new format — the logins live as one reserved item
+(`passwords/manifest.json`) in an ordinary vault, sealed by the
+Phase 1 core and covered by its password changes, recovery path,
+tamper checks, and stale-session guard unchanged. Entries carry a
+name, user name, password, web address, notes, and first-saved /
+last-changed stamps; an entry's printed form never shows its
+password, and passwords leave the store through one deliberate
+reveal path. The generator draws only on the `secrets` source,
+guarantees every switched-on kind of character appears, and never
+logs or keeps what it makes. Search covers names, user names, and
+web addresses only — passwords and notes are never searched, so a
+search can't test whether a password is inside. Copying runs
+through a clipboard seam whose auto-clear takes a copied password
+back off after a short window, only when the clipboard still holds
+exactly what Aegis put there. Lock-on-idle locks through Phase 1's
+session lock and drops the store's list at the same moment; a lock
+that fails is raised and retried, never hidden. **Import/export,
+decided per the written review in
+`docs/IMPORT-EXPORT-SAFETY.md`:** export is a sealed `.aegis` copy
+only; import merges logins from another open Aegis vault; there is
+no plain-text import or export in any direction. 257 tests total
+(179 Phase 1 + 78 new), plus an adversarial self-audit cycle whose
+two fixes (idle-lock failure handling, clipboard-clear
+containment) are pinned as regression tests. Recorded limit,
+stated honestly: the store's parsed logins sit in memory while the
+vault is open — the same posture as the session itself — and are
+dropped, not scrubbed, at lock; the full memory review remains
+Phase 5's gate.
+
 The credential store, built on the Phase 1 core — same Argon2id
 derivation, same AES-256 sealing, same session discipline. No second
 crypto stack, ever.
