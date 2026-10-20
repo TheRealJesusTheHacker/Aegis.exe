@@ -272,3 +272,26 @@ def test_confirm_dialog_is_closed_by_lock(qapp, tmp_path):
         window.close()
         window.deleteLater()
         qapp.processEvents()
+
+# -- self-install (launcher layer; mechanism proven offscreen) -----
+
+def test_install_places_a_verified_copy_and_uninstall_removes_it(tmp_path, monkeypatch):
+    import importlib.util
+
+    spec = importlib.util.spec_from_file_location(
+        "aegis_install", ROOT / "packaging" / "install.py")
+    install = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(install)
+    monkeypatch.setenv("AEGIS_INSTALL_ROOT", str(tmp_path / "root"))
+    source = tmp_path / "build"; source.mkdir()
+    (source / "Aegis.exe").write_bytes(b"synthetic exe bytes")
+    (source / "lib.bin").write_bytes(b"synthetic lib")
+    ok, message = install.install(source)
+    assert ok, message
+    placed = tmp_path / "root" / "Aegis" / "Aegis.exe"
+    assert placed.read_bytes() == b"synthetic exe bytes"
+    ok, message = install.install(source)  # already home: heals/no-ops cleanly
+    assert ok
+    ok, message = install.uninstall()
+    assert ok and not (tmp_path / "root" / "Aegis").exists()
+    assert "vault" in message.lower()  # the promise: vaults untouched

@@ -29,6 +29,14 @@ jobs:
       - name: Full suite (offscreen, Windows)
         run: python -m pytest tests/ -q
         env: { QT_QPA_PLATFORM: offscreen }
+      - name: KDF measurement (Windows runner)
+        shell: python
+        run: |
+          import time
+          from aegis.kdf import DEFAULT_PARAMS, derive_key
+          start = time.perf_counter()
+          derive_key(b"synthetic measurement secret", b"\x01" * 16, DEFAULT_PARAMS)
+          print("Argon2id RFC 9106 (64 MiB / t3 / p4) on windows-latest: %.3fs" % (time.perf_counter() - start))
       - name: PyInstaller build
         run: pyinstaller packaging/Aegis.spec --noconfirm
       - name: Warn-file gate
