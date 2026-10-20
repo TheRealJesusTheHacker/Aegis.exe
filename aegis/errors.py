@@ -110,6 +110,31 @@ class VaultChangedOnDiskError(AegisError):
     )
 
 
+class CredentialNotFoundError(AegisError):
+    """The named saved login is not in the vault."""
+
+    user_message = "That login isn't saved in this vault."
+
+
+class InvalidCredentialError(AegisError, ValueError):
+    """A saved login's details cannot be accepted."""
+
+    user_message = (
+        "That login can't be saved. Check the details and try again — "
+        "every login needs a name for the site or app it belongs to."
+    )
+
+
+class PasswordStoreDamagedError(AegisError):
+    """The saved-logins list inside a vault fails its checks."""
+
+    user_message = (
+        "This vault's saved logins don't check out — they have been "
+        "changed or damaged, so Aegis won't use them. Your files in "
+        "this vault are not affected."
+    )
+
+
 class EntryNotFoundError(AegisError):
     """The named item is not in the vault."""
 
