@@ -29,6 +29,7 @@ Discipline notes:
 from __future__ import annotations
 
 import os
+import tempfile
 import time
 from pathlib import Path
 
@@ -421,10 +422,48 @@ class VaultController:
         self.touch()
         return result
 
-    def open_a_sealed_file(self, sealed_path, password, destination_dir=None) -> Path:
-        result = open_sealed_file(sealed_path, password, destination_dir)
+    def open_a_sealed_file(self, sealed_path, password, destination_dir=None,
+                           *, place_guard=None) -> Path:
+        """Open a sealed file, placing the result only if allowed.
+
+        The file is opened into a holding folder first; the move
+        into its real place happens only when ``place_guard`` (if
+        given) still says yes at that moment. If the app locked
+        while the opening ran, the held copy is removed and
+        nothing is placed — a lock must never be followed by new
+        plain files appearing on disk.
+        """
+        if place_guard is None:
+            result = open_sealed_file(sealed_path, password, destination_dir)
+            self.touch()
+            return result
+        from ..errors import VaultLockedError
+
+        src = Path(sealed_path)
+        dest_dir = (
+            Path(destination_dir) if destination_dir is not None else src.parent
+        )
+        staging = Path(tempfile.mkdtemp(dir=str(dest_dir), prefix=".aegis-opening-"))
+        try:
+            staged = open_sealed_file(sealed_path, password, staging)
+            if not place_guard():
+                raise VaultLockedError()
+            target = dest_dir / staged.name
+            if os.path.lexists(target):
+                from ..errors import SealedExistsError
+
+                raise SealedExistsError(
+                    "There's already a file called \"%s\" there. "
+                    "Move it, rename it, or open this into a "
+                    "different folder." % staged.name
+                )
+            os.rename(staged, target)
+        finally:
+            import shutil
+
+            shutil.rmtree(staging, ignore_errors=True)
         self.touch()
-        return result
+        return target
 
     # -- Backup sets (Lazarus's armor) -----------------------------------
 
@@ -436,8 +475,11 @@ class VaultController:
     def look_inside_set(self, sealed_path, password):
         return armor_manifest(sealed_path, password)
 
-    def unseal_a_set(self, sealed_path, password, destination) -> Path:
-        result = unseal_tree(sealed_path, password, destination)
+    def unseal_a_set(self, sealed_path, password, destination,
+                     *, place_guard=None) -> Path:
+        result = unseal_tree(
+            sealed_path, password, destination, place_guard=place_guard
+        )
         self.touch()
         return result
 

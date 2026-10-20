@@ -704,7 +704,10 @@ class RecoverySheet(QWidget):
     def _print(self) -> None:
         printer = QPrinter()
         dialog = QPrintDialog(printer, self)
-        if dialog.exec() == QDialog.Accepted:
+        # Under the window's dialog discipline, like every other
+        # dialog: a lock closes it instead of leaving it standing
+        # over the locked screen with the sheet behind it.
+        if _exec_dialog(self, dialog) == QDialog.Accepted:
             self.sheet.print_(printer)
 
 
@@ -942,6 +945,23 @@ class ItemEditor(QDialog):
         self._file_path = None
 
 
+def _confirm(widget: QWidget, text: str) -> bool:
+    """Ask a yes/no question under the window's lock discipline.
+
+    A static question box cannot be tracked, so it would survive
+    a lock standing over the locked screen. This builds the same
+    question as a real dialog and runs it through the tracked
+    path: a lock closes it (which answers "no"), and however it
+    ends it is disposed of, never left as a hidden child.
+    """
+    box = QMessageBox(
+        QMessageBox.Question, "Aegis", text,
+        QMessageBox.Yes | QMessageBox.No, widget,
+    )
+    box.setDefaultButton(QMessageBox.No)
+    return _exec_dialog(widget, box) == QMessageBox.Yes
+
+
 def _exec_dialog(widget: QWidget, dialog: QDialog) -> int:
     """Run a dialog under the window's lock discipline.
 
@@ -1173,11 +1193,7 @@ class PasswordsPage(QWidget):
     def _delete(self) -> None:
         if self._current_id is None:
             return
-        answer = QMessageBox.question(
-            self, "Aegis",
-            "Delete this login from the vault? This can't be undone.",
-        )
-        if answer != QMessageBox.Yes:
+        if not _confirm(self, "Delete this login from the vault? This can't be undone."):
             return
         try:
             self._controller.delete_login(self._current_id)
@@ -1533,11 +1549,7 @@ class StrongboxPage(QWidget):
     def _delete(self) -> None:
         if self._current_id is None:
             return
-        answer = QMessageBox.question(
-            self, "Aegis",
-            "Delete this item from the Strongbox? This can't be undone.",
-        )
-        if answer != QMessageBox.Yes:
+        if not _confirm(self, "Delete this item from the Strongbox? This can't be undone."):
             return
         try:
             self._controller.delete_item(self._current_id)
@@ -1717,7 +1729,10 @@ class LockSendPage(QWidget):
         self.open_busy.start("Opening…")
         epoch = self._epoch
         worker = Worker(
-            lambda: self._controller.open_a_sealed_file(source, password, dest),
+            lambda: self._controller.open_a_sealed_file(
+                source, password, dest,
+                place_guard=lambda: self._epoch == epoch,
+            ),
             self,
         )
         worker.done.connect(lambda path: self._opened(path, epoch))
@@ -1742,10 +1757,14 @@ class LockSendPage(QWidget):
         self.banner.show_error(exc)
 
     def wipe(self) -> None:
-        # A new epoch: any worker still running from before this
-        # wipe (a seal finishing after a lock, say) may complete
-        # its file work — the person asked for that file — but its
-        # result lands nowhere on the wiped screen.
+        # A new epoch: output work still running from before this
+        # wipe is stopped at the placing step. A worker that was
+        # opening a file checks the epoch before the opened file
+        # is moved into place; if the epoch has moved, the held
+        # copy is removed and nothing is placed — locking the app
+        # must never be followed by new plain files appearing on
+        # disk behind the locked screen. (This reverses the Phase 4
+        # choice, on the Phase 5 audit's finding.)
         self._epoch += 1
         self.seal_busy.stop()
         self.open_busy.stop()
@@ -1997,7 +2016,10 @@ class ArmorPage(QWidget):
         self.open_busy.start("Opening the set…")
         epoch = self._epoch
         worker = Worker(
-            lambda: self._controller.unseal_a_set(source, password, destination),
+            lambda: self._controller.unseal_a_set(
+                source, password, destination,
+                place_guard=lambda: self._epoch == epoch,
+            ),
             self,
         )
         worker.done.connect(lambda path: self._unsealed(path, epoch))
@@ -2167,12 +2189,7 @@ class SettingsPage(QWidget):
             self.new_confirm.clear()
 
     def _new_key(self) -> None:
-        answer = QMessageBox.question(
-            self, "Aegis",
-            "Make a new recovery key? The old one stops working "
-            "right away.",
-        )
-        if answer != QMessageBox.Yes:
+        if not _confirm(self, "Make a new recovery key? The old one stops working right away."):
             return
         try:
             key = self._controller.new_recovery_key()
