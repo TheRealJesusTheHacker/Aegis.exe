@@ -121,6 +121,8 @@ def _check_filename(filename):
         raise InvalidStrongboxEntryError()
     if "/" in filename or "\\" in filename or "\x00" in filename:
         raise InvalidStrongboxEntryError()
+    if _format.windows_unsafe_segment(filename):
+        raise InvalidStrongboxEntryError()
     return filename
 
 

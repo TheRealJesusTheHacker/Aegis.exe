@@ -116,6 +116,7 @@ def _parse_inner_manifest(raw: bytes) -> str:
     if (
         not 1 <= len(filename) <= 255
         or filename in (".", "..")
+        or _format.windows_unsafe_segment(filename)
         or "/" in filename
         or "\\" in filename
         or "\x00" in filename

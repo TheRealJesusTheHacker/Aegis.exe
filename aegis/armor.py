@@ -59,6 +59,7 @@ from .errors import (
     SealedFormatError,
     SealedSaveError,
     SealedTamperedError,
+    VaultLockedError,
 )
 from .kdf import DEFAULT_PARAMS, KdfParams
 from .sealed import (
@@ -304,6 +305,8 @@ def _validate_rel_path(path) -> str:
     for segment in path.split("/"):
         if segment in ("", ".", ".."):
             raise SealedTamperedError()
+        if _format.windows_unsafe_segment(segment):
+            raise SealedTamperedError()
     return path
 
 
@@ -403,7 +406,7 @@ def armor_manifest(sealed_path, password: str) -> ArmorManifest:
 # -- unsealing --------------------------------------------------------------------
 
 
-def unseal_tree(sealed_path, password: str, destination) -> Path:
+def unseal_tree(sealed_path, password: str, destination, *, place_guard=None) -> Path:
     """Open an armored set back into a folder; return its path.
 
     ``destination`` must not exist: unsealing never overwrites and
@@ -442,6 +445,11 @@ def unseal_tree(sealed_path, password: str, destination) -> Path:
         # The destination was free when we started; check once
         # more before the move, and never let a raw system error
         # escape the move itself.
+        if place_guard is not None and not place_guard():
+            # The caller withdrew permission while the work ran
+            # (the app locked). The set is fully built in staging
+            # and the finally below removes it — nothing is placed.
+            raise VaultLockedError()
         if os.path.lexists(dest):
             raise SealedExistsError()
         try:

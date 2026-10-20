@@ -539,3 +539,28 @@ def parse_file_prefix(raw: bytes):
     if len(raw) < end:
         raise VaultFormatError()
     return raw[_PREFIX_LEN:end], raw[end:]
+
+
+# Names that Windows treats as the same as a plainer name, or as a
+# device rather than a file. Validation is string-level and runs on
+# every platform, so a set sealed anywhere is refused everywhere.
+_DOS_DEVICES = frozenset(
+    ["CON", "PRN", "AUX", "NUL"]
+    + ["COM%d" % i for i in range(1, 10)]
+    + ["LPT%d" % i for i in range(1, 10)]
+)
+
+
+def windows_unsafe_segment(segment: str) -> bool:
+    """True if one path segment is unsafe under Windows name rules.
+
+    Windows trims trailing dots and spaces from a name and treats
+    the DOS device names above as devices, with or without an
+    extension — so "notes." and "notes" are the same file there,
+    and "NUL.txt" is not a file at all. Accepting such a name
+    would let two different names land on one place.
+    """
+    if segment.endswith((".", " ")):
+        return True
+    stem = segment.split(".", 1)[0].upper()
+    return stem in _DOS_DEVICES
