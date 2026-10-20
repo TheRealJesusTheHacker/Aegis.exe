@@ -1,0 +1,24 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+
+# PyInstaller
+build/
+dist/
+*.manifest
+
+# Aegis working data (never commit user vaults, strongbox data, or recovery material)
+*.log
+vaults/
+strongbox/
+*.aegis
+recovery-keys/
+
+# OS / editor
+Thumbs.db
+Desktop.ini
+.vscode/
+.idea/
