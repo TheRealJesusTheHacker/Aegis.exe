@@ -5,7 +5,7 @@ the build phases in [docs/ROADMAP.md](docs/ROADMAP.md). No public
 release ships before the Phase 5 independent security audit gate —
 pre-release versions below are development milestones, not releases.
 
-## [1.0.0] — 2026-10-20 (release candidate — audit in progress)
+## [1.0.0] — 2026-10-20 — FIRST PUBLIC RELEASE
 
 ### Added
 
@@ -17,8 +17,9 @@ pre-release versions below are development milestones, not releases.
 - Windows release workflow: version triangulation, the full
   suite on Windows, the PyInstaller build with a warning gate,
   the staged-exe launch smoke test, `AegisPortable.zip`, and
-  `SHA256SUMS.txt`. The release itself is published only after
-  the independent security audit passes.
+  `SHA256SUMS.txt`. The independent security audit's verdict
+  is PASS WITH DOCUMENTED RESIDUALS, and this release shipped
+  on that pass.
 - Portable edition: one folder, no installation, with an honest
   data-footprint statement inside the zip.
 - Launcher `--install` / `--uninstall`: self-placement with a
