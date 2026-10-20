@@ -7,8 +7,13 @@ future versions can raise them without breaking older vaults.
 
 On open, parameters read from a header are validated *before* any
 derivation runs: the floors keep a tampered header from silently
-weakening a vault, and the ceilings keep one from turning an open
-attempt into a denial of service. The real tamper defense is the
+weakening a vault, and the ceilings bound what a hostile header
+can demand. The bound is finite, not small: a header sitting
+exactly at the ceilings (1 GiB of memory, 10 passes, 16 lanes)
+is accepted and derived, so opening a hostile file someone was
+induced to try can cost up to about a gigabyte of memory and
+many seconds — anything beyond the ceilings is refused before
+any derivation runs. The real tamper defense is the
 authenticated sealing itself — altered parameters derive a different
 key and the unwrap simply fails.
 """
