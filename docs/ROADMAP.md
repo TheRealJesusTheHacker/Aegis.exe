@@ -135,6 +135,69 @@ crypto stack, ever.
 
 ## Phase 3 — The Strongbox, Lock-and-send, and Lazarus's armor
 
+**Status: COMPLETE — shipped as v0.4.0 (2026-10-20).**
+
+*As built:* all three features stand on the audited core, and the
+two that needed files of their own share one construction rather
+than inventing two. **The Strongbox** is a convention inside the
+vault, like the password store before it: its list is one reserved
+item (`strongbox/manifest.json`), its items are typed — recovery
+code, key, private note, document copy — and a document copy's
+bytes are one vault item of their own, with the original file
+name, size, and SHA-256 check value recorded in the list and
+verified on every read. Document copies are capped at **10 MB
+each**; past the cap the refusal says so plainly, because the file
+itself belongs in the vault as a file. **Lock-and-send** and
+**Lazarus's armor** share a standalone sealed-file construction
+(`aegis/sealed.py`): the Phase 1 vault construction re-shaped for
+one file and one password — Argon2id parameters in the header,
+validated before any derivation; a fresh random file key wrapped
+under the derived key in its own authenticated context; contents
+in 1 MiB authenticated chunks bound to the file's random id and to
+its wrapped key — streamed in both directions, so sealed files are
+not bounded by memory. Each product has its own format and its own
+magic — a vault (`AEGISVLT`), a file for sending (`AEGISSND`), an
+armored set (`AEGISARM`) — and **no reader opens another product's
+files**: a vault is not openable as a send file or a set, a send
+file is not openable as a vault or a set, a set is not openable as
+anything but a set; that separation is pinned by tests in both
+directions for every pair. A standalone opener for Lock-and-send
+recipients was *not* built: the phase's design review did not
+approve shipping a second implementation of the format, so a
+recipient opens a send file in their own copy of Aegis, and the
+copy says exactly that.
+
+*Lock-and-send:* the file's name lives inside the seal, and the
+sealed file's own name is a plain default that repeats nothing
+about what is inside. Opening writes the file under its original
+name, never overwriting what is already there; the flow copy
+states the truth of the design — the password is the whole lock,
+and it must travel a different way than the file. *Lazarus's
+armor:* the interface point below held exactly — a folder (a
+Lazarus store above all) is sealed whole into one `.aegis-armored`
+file, its contents a manifest (every folder, and every file's
+place, size, and check value) followed by the files' bytes, and
+unsealed whole back into a folder. Aegis was not modified to know
+Lazarus's layout, and Lazarus was not modified at all. Sealing
+never follows links and refuses a folder holding one; unsealing
+validates every manifest path (no absolute paths, no `..`, no
+backslashes, no duplicates even across capitalization), checks
+each file against its recorded check value as it lands, and
+builds the folder in a holding place that is only moved into
+place once the whole set checks out — a failed unsealing puts
+nothing in place. Recorded limits, stated honestly: sealing reads
+each file twice (once for its check value, once to seal), so a
+file changed mid-seal produces a set that refuses to unseal —
+the safe direction; and a set replaced wholesale by an older set
+opens as that older set, the same no-offline-file-can-tell-time
+limit the vault carries. 369 tests total (257 prior + 112 new),
+plus the doubled adversarial self-audit (leakage scans, splice and
+truncation batteries, crafted-manifest and crafted-list attacks,
+parameter-ceiling probes) whose two fixes — the unseal move's
+failure behavior and a handle left open on a refused open — are
+pinned as regression tests. That self-audit does **not** replace
+the Phase 5 independent audit gate.
+
 - **The Strongbox** — a sealed compartment for recovery codes, keys,
   private notes, and document copies. Same core, smaller door:
   optimized for quick in-and-out access to small, critical items.
