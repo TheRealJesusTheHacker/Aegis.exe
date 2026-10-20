@@ -1,2 +1,6 @@
-cryptography>=42.0
-argon2-cffi>=23.1
+# Aegis runtime dependencies — vetted libraries only.
+# The two crypto libraries are pinned to ranges that have passed
+# the full test suite; widening a range is a change that needs
+# the suite run again, not a casual edit.
+cryptography>=44,<51
+argon2-cffi>=23.1,<26

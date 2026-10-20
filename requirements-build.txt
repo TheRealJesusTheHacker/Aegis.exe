@@ -1,0 +1,7 @@
+# Build/test-only dependencies (the release workflow installs
+# these on top of requirements.txt; they are never shipped
+# inside the app beyond what PyInstaller bundles for the
+# interface itself).
+PySide6>=6.6,<7
+PyInstaller>=6,<7
+pytest>=8,<10
