@@ -482,6 +482,12 @@ class VaultSession:
             self.save()
         _zero(self._vault_key)
         self._vault_key = None
+        # Empty the held contents in place before rebinding, so a
+        # reference held elsewhere sees them gone too. Values are
+        # immutable bytes, which cannot be scrubbed in place —
+        # dropping every reference is the honest limit, stated in
+        # docs/THREAT-MODEL.md.
+        self._entries.clear()
         self._entries = {}
         self._locked = True
 

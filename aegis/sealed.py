@@ -461,6 +461,12 @@ class SealedWriter:
         self._closed = True
         try:
             self._emit(bytes(self._buffer), is_final=True)
+            # Zero the staged copy in place before dropping it:
+            # rebinding alone leaves the old bytes untouched in the
+            # freed buffer. (Python cannot promise every copy the
+            # interpreter made is gone — see docs/THREAT-MODEL.md.)
+            _zero(self._buffer)
+            del self._buffer[:]
             self._buffer = bytearray()
             flush = getattr(self._out, "flush", None)
             if flush is not None:
@@ -591,6 +597,13 @@ class SealedReader:
         if not self._closed:
             self._closed = True
             _zero(self._file_key)
+            # Zero any staged-but-unread contents in place too:
+            # closing a reader early must not leave what it already
+            # opened sitting in its buffers.
+            _zero(self._plain)
+            del self._plain[:]
+            _zero(self._cipher_buf)
+            del self._cipher_buf[:]
 
     def __enter__(self) -> "SealedReader":
         return self

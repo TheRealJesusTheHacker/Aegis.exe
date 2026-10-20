@@ -158,6 +158,14 @@ class CredentialStore:
         guard) so the store keeps nothing the session no longer
         holds the keys to.
         """
+        if isinstance(self._entries, list):
+            # Empty the list itself, not just our reference to it,
+            # so any other holder of the same list sees it empty.
+            # The entries' text fields are immutable strings —
+            # Python gives no way to scrub those in place; dropping
+            # every reference is the honest limit (see
+            # docs/THREAT-MODEL.md).
+            del self._entries[:]
         self._entries = None
 
     def lock(self) -> None:
