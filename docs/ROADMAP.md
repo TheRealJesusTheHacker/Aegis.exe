@@ -19,6 +19,39 @@ audit gate passes. No exceptions, no settings that weaken them.
 
 ## Phase 1 — Encryption vault core (The Vault)
 
+**Status: COMPLETE — shipped as v0.2.0 (2026-10-20).**
+
+*As built:* a vault is a single sealed `.aegis` file — an
+authenticated header (format version, a per-vault id, the Argon2id
+parameters, and two wrapped copies of the vault's random 256-bit
+key: one sealed by the master password, one by the recovery key)
+followed by the contents sealed in 1 MiB AES-256-GCM chunks, each
+chunk bound to the vault's id and to the current wrapped keys, so a
+credential change re-binds the contents and older contents cannot be
+spliced under newer credentials. Argon2id runs at the RFC 9106
+first recommended profile (64 MiB, 3 passes, 4 lanes); parameters
+are stored in the header and validated — floors and ceilings —
+before any derivation runs, so a tampered header can only ever
+produce a refusal. The setup flow ships as designed: the
+plain-language warning, the printable recovery key (generated once,
+shown once, never stored), and plain-language password-strength
+guidance. Sessions lock by saving and wiping keys; the file on disk
+is a sealed vault at all times, even while a session is open. 179
+tests cover the suite named below plus the audit regressions. One
+adversarial self-audit cycle ran before the version was cut and
+changed the design (per-credential wrap contexts, salt rotation on
+credential change, payload-to-credential binding) — that cycle is
+house process, **not** the Phase 5 gate; the independent audit
+still stands between this core and any public release. Recorded
+limits, stated honestly: a vault file replaced wholesale by an
+older copy opens as that older copy (no offline file can tell
+time); passwords are taken exactly as typed, with no silent
+normalization; and Python cannot guarantee every in-memory copy of
+a key is erasable — the primary buffers are wiped, and the full
+memory-handling review belongs to Phase 5. Phase 4 note: the app
+should remember the newest vault state it has seen, outside the
+vault file, as one more tripwire against silent rollback.
+
 The heart of the product, built first and built carefully.
 
 - **Vault format** — files and folders sealed into AES-256 encrypted
