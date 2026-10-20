@@ -75,6 +75,31 @@ def app_home() -> Path | None:
     return None
 
 
+def _settled(path) -> Path:
+    """Settle ``path`` to its full, real form for comparison.
+
+    Windows also spells a folder with a verbatim prefix: two
+    backslashes, a question mark, and a backslash in front of
+    a drive path (and the same, with UNC added, in front of a
+    share) -- the same folder, written so its long form is
+    taken exactly as given. Settling alone keeps that prefix
+    on one side of a comparison and not the other, so the
+    same folder in its two spellings compared as two
+    different folders: proven on Windows CI, where the
+    prefixed spelling of the installed home was not
+    recognized as installed. The prefix comes off before
+    settling, on both sides alike.
+    """
+    bs = chr(92)
+    verbatim = bs + bs + "?" + bs
+    text = str(path)
+    if text.startswith(verbatim + "UNC" + bs):
+        text = bs + bs + text[len(verbatim) + 4:]
+    elif text.startswith(verbatim):
+        text = text[len(verbatim):]
+    return Path(text).resolve()
+
+
 def running_from_installed_home(app_dir, home=None) -> bool:
     """True when ``app_dir`` is the installed home, path for path.
 
@@ -87,7 +112,7 @@ def running_from_installed_home(app_dir, home=None) -> bool:
         return False
     if home is None:
         home = installed_home()
-    return Path(app_dir).resolve() == Path(home).resolve()
+    return _settled(app_dir) == _settled(home)
 
 
 def offer_needed(app_dir=None, home=None) -> bool:

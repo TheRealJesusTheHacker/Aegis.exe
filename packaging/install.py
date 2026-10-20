@@ -39,6 +39,31 @@ def install_root() -> Path:
     return Path.home() / "Programs"
 
 
+def _settled(path) -> Path:
+    """Settle ``path`` to its full, real form for comparison.
+
+    Windows also spells a folder with a verbatim prefix: two
+    backslashes, a question mark, and a backslash in front of
+    a drive path (and the same, with UNC added, in front of a
+    share) -- the same folder, written so its long form is
+    taken exactly as given. Settling alone keeps that prefix
+    on one side of a comparison and not the other, so the
+    same folder in its two spellings compared as two
+    different folders: proven on Windows CI, where the
+    prefixed spelling of the installed home was not
+    recognized as installed. The prefix comes off before
+    settling, on both sides alike.
+    """
+    bs = chr(92)
+    verbatim = bs + bs + "?" + bs
+    text = str(path)
+    if text.startswith(verbatim + "UNC" + bs):
+        text = bs + bs + text[len(verbatim) + 4:]
+    elif text.startswith(verbatim):
+        text = text[len(verbatim):]
+    return Path(text).resolve()
+
+
 def start_menu_dir() -> Path:
     override = os.environ.get("AEGIS_INSTALL_ROOT")
     if override:
@@ -97,7 +122,7 @@ def install(source_dir: Path) -> tuple:
     if not (source_dir / "Aegis.exe").exists() and not (source_dir / "Aegis").exists():
         return False, "This copy does not look complete, so nothing was installed."
     dest = install_root() / APP_FOLDER
-    if dest.resolve() == source_dir.resolve():
+    if _settled(dest) == _settled(source_dir):
         return True, "Aegis is already running from its installed home; nothing to do."
     had_earlier_copy = dest.exists()
     if had_earlier_copy:

@@ -91,6 +91,10 @@ def test_strongbox_filename_refuses_colons():
 # -- Sealing refuses unusable names up front -------------------------
 
 
+@pytest.mark.skipif(
+    sys.platform == "win32",
+    reason="these names cannot be created as plain files on Windows",
+)
 def test_seal_tree_refuses_windows_unusable_names(tmp_path):
     """v1.0.1 sealed this folder happily and produced a set its
     own unseal refused as 'changed or damaged' — a set that
@@ -104,6 +108,10 @@ def test_seal_tree_refuses_windows_unusable_names(tmp_path):
     assert not (tmp_path / "set.aegis-armored").exists()
 
 
+@pytest.mark.skipif(
+    sys.platform == "win32",
+    reason="these names cannot be created as plain files on Windows",
+)
 def test_seal_file_refuses_windows_unusable_source_name(tmp_path):
     src = tmp_path / "a:b.txt"
     src.write_bytes(b"colon name")
@@ -272,6 +280,23 @@ def test_unseal_waits_out_a_briefly_busy_move(tmp_path, monkeypatch):
     dest = unseal_tree(sealed, PASSWORD, tmp_path / "opened")
     assert (dest / "plain.txt").read_bytes() == b"plain"
     assert attempts["count"] == 2
+
+
+def test_install_detection_verbatim_prefix_spelling(tmp_path):
+    """Windows CI proved this one live: the installed home
+    spelled with the verbatim prefix was NOT recognized as
+    installed on Windows, so a copy started through that
+    spelling would have been offered an install it did not
+    need. The comparison now settles both spellings alike;
+    this pin runs on every platform because the settling is
+    string-level."""
+    from aegis.install_state import running_from_installed_home
+
+    home = tmp_path / "Installed Home"
+    home.mkdir()
+    assert running_from_installed_home(home, home=home)
+    assert running_from_installed_home("\\\\?\\" + str(home), home=home)
+    assert not running_from_installed_home(tmp_path / "elsewhere", home=home)
 
 
 # -- Windows-only probes (run on the Windows CI runners) ---------------
