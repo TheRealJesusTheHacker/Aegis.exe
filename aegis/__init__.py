@@ -7,10 +7,19 @@ anyone, including us.
 """
 
 from . import errors
+from .clipboard import (
+    DEFAULT_CLEAR_AFTER_SECONDS,
+    AutoClearClipboard,
+    MemoryClipboard,
+)
+from .credentials import STORE_ENTRY_NAME, CredentialEntry, CredentialStore, CredentialSummary
 from .errors import (
     AegisError,
+    CredentialNotFoundError,
     EntryNotFoundError,
+    InvalidCredentialError,
     InvalidEntryNameError,
+    PasswordStoreDamagedError,
     UnlockError,
     VaultChangedOnDiskError,
     VaultExistsError,
@@ -22,6 +31,13 @@ from .errors import (
     WrongPasswordError,
     WrongRecoveryKeyError,
 )
+from .generator import (
+    DEFAULT_GENERATED_LENGTH,
+    MAX_GENERATED_LENGTH,
+    MIN_GENERATED_LENGTH,
+    generate_password,
+)
+from .idle import DEFAULT_IDLE_SECONDS, IdleGuard
 from .kdf import DEFAULT_PARAMS, KdfParams
 from .passwords import MIN_PASSWORD_LENGTH, PasswordFeedback, password_feedback
 from .recovery import (
@@ -35,16 +51,20 @@ from .setup import (
     RECOVERY_KEY_GUIDANCE,
     printable_recovery_sheet,
 )
+from .transfer import export_sealed_copy, import_from_vault
 from .vault import CreatedVault, Vault, VaultSession
 
-__version__ = "0.2.0"
+__version__ = "0.3.0"
 
 __all__ = [
     "__version__",
     "errors",
     "AegisError",
+    "CredentialNotFoundError",
     "EntryNotFoundError",
+    "InvalidCredentialError",
     "InvalidEntryNameError",
+    "PasswordStoreDamagedError",
     "UnlockError",
     "VaultChangedOnDiskError",
     "VaultExistsError",
@@ -70,4 +90,19 @@ __all__ = [
     "CreatedVault",
     "Vault",
     "VaultSession",
+    "STORE_ENTRY_NAME",
+    "CredentialEntry",
+    "CredentialStore",
+    "CredentialSummary",
+    "DEFAULT_GENERATED_LENGTH",
+    "MAX_GENERATED_LENGTH",
+    "MIN_GENERATED_LENGTH",
+    "generate_password",
+    "DEFAULT_CLEAR_AFTER_SECONDS",
+    "AutoClearClipboard",
+    "MemoryClipboard",
+    "DEFAULT_IDLE_SECONDS",
+    "IdleGuard",
+    "export_sealed_copy",
+    "import_from_vault",
 ]
