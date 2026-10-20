@@ -134,6 +134,8 @@ are in place; implementation has not begun. The build order is in
 password vault on the same audited core second, and an independent
 security audit gate before any public release.
 
+A portable no-install edition (folder/USB, Argus Portable pattern) — including the portable password vault on a USB stick — is a named Phase 5 deliverable and will ship alongside the installer, after the security audit gate — see the roadmap.
+
 ## License
 
 Proprietary — © 2026 Sentinel Safeguard LLC. All rights reserved.
