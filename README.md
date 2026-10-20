@@ -155,10 +155,13 @@ every control does what it says.
 
 ## Status
 
-**v1.0.0 — Phase 5 release candidate: hardening and packaging
-complete; the independent security audit is in progress.** The
-public release ships only when that audit's verdict is a pass —
-until then this is a release-prep build, not a released product.
+**v1.0.0 — SHIPPED 2026-10-20: the first public release.**
+The Phase 5 independent security audit's verdict is **PASS
+WITH DOCUMENTED RESIDUALS**: its first round found no
+critical or high issues, and its one medium and three low
+findings are fixed and were re-probed closed in the re-audit.
+Get it from the [v1.0.0 release](https://github.com/TheRealJesusTheHacker/Aegis.exe/releases/tag/v1.0.0)
+— `Aegis.exe`, `AegisPortable.zip`, and `SHA256SUMS.txt`.
 
 Phase 5 added: the plain-language threat model
 (`docs/THREAT-MODEL.md`) — who Aegis protects you from and,
