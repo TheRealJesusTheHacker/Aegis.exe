@@ -5,6 +5,65 @@ the build phases in [docs/ROADMAP.md](docs/ROADMAP.md). No public
 release ships before the Phase 5 independent security audit gate —
 pre-release versions below are development milestones, not releases.
 
+## [0.4.0] — 2026-10-20
+
+Phase 3 — the Strongbox, Lock-and-send, and Lazarus's armor.
+
+### Added
+
+- **The Strongbox**: a compartment inside the vault for what
+  isn't a login — recovery codes, keys, private notes, and copies
+  of documents — typed, listed without their contents, and opened
+  through one deliberate reveal path (documents through their own
+  read path). Same vault, same master password and recovery key,
+  no second format. A document copy keeps its original file name
+  and is checked against its recorded size and check value every
+  time it is read; copies are capped at 10 MB each, and the
+  refusal past the cap says why, plainly.
+- **Lock-and-send**: one file sealed with a password of its own,
+  for files that travel. The file's name stays inside the seal;
+  the sealed file's own name gives nothing away unless the sender
+  chooses one. Opening never overwrites. The flow copy states the
+  design's truth up front: the password is the whole lock, and it
+  must travel a different way than the file.
+- **Lazarus's armor**: a whole folder — a Lazarus backup set
+  above all — sealed into one `.aegis-armored` file and unsealed
+  back byte for byte, whole at the boundary, exactly as the
+  roadmap's interface point defines. Sealing never follows links;
+  unsealing checks every file against the set's recorded check
+  values and puts the folder in place only once the whole set
+  checks out.
+- **One standalone construction for both**: Argon2id settings in
+  the header, checked before use; a random file key, wrapped;
+  contents sealed in authenticated chunks, streamed both ways.
+  Each product's files carry their own format marker, and no
+  Aegis reader opens another product's files — the separation is
+  tested in both directions for every pair.
+- **Test suite**: 369 tests (257 prior + 112 new) — Strongbox
+  CRUD, document round-trips at and past the cap, crafted-list
+  refusals; Lock-and-send round-trips (empty, binary, multi-chunk,
+  unicode names), tamper and splice refusals, derivation-setting
+  attacks; armor round-trips of multi-file trees, crafted
+  manifests (escape paths, duplicates, lying sizes and check
+  values), no-overwrite and link refusals; a hostile-input battery
+  that lets only designed, plain-language errors escape any
+  opener; and the plain-language sweep over all new wording.
+
+### Security
+
+- The doubled adversarial self-audit cycle ran before this
+  version was cut: leakage scans over sealed bytes, truncation
+  sweeps at every boundary, header/payload splices even between
+  files sharing a password, parameter-ceiling probes refused
+  before any derivation ran, and Strongbox lists crafted to lie
+  about their documents (caught by the recorded check values). It
+  fixed two defects: a failed unsealing move could have surfaced
+  a raw system error instead of the designed one, and a refused
+  open could leave a file handle behind. Both are pinned as
+  regression tests.
+- This self-audit does not replace the Phase 5 independent
+  security audit gate.
+
 ## [0.3.0] — 2026-10-20
 
 Phase 2 — the password vault core.
