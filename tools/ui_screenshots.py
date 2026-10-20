@@ -35,6 +35,16 @@ FAST = KdfParams(memory_kib=8192, time_cost=1, parallelism=1)
 PASSWORD = "synthetic master phrase one"
 
 
+class FakeInstallOffer:
+    """A stand-in policy for the screenshot: the offer is needed."""
+
+    def needed(self):
+        return True
+
+    def run(self):
+        return True, "Aegis is installed and checked."
+
+
 def settle(app, ms=300):
     timer = QElapsedTimer()
     timer.start()
@@ -111,6 +121,20 @@ def main() -> int:
 
     shots = []
     shots.append(grab(app, window, out_dir / "01-locked.png"))
+
+    # The first-run install offer, standing over a locked screen.
+    offer_window = MainWindow(
+        VaultController(MemoryClipboard()),
+        install_offer=FakeInstallOffer(),
+    )
+    offer_window.show()
+    offer_window.maybe_offer_install()
+    offer_dialog = offer_window._install_dialog
+    if offer_dialog is not None:
+        shots.append(grab(app, offer_dialog, out_dir / "11-install-offer.png"))
+    offer_window.close()
+    offer_window.deleteLater()
+    settle(app)
 
     # Setup: warning first.
     window.stack.setCurrentWidget(window.setup_screen)

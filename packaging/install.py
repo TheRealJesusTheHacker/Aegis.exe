@@ -99,15 +99,78 @@ def install(source_dir: Path) -> tuple:
     dest = install_root() / APP_FOLDER
     if dest.resolve() == source_dir.resolve():
         return True, "Aegis is already running from its installed home; nothing to do."
-    try:
-        if dest.exists():
+    had_earlier_copy = dest.exists()
+    if had_earlier_copy:
+        try:
             shutil.rmtree(dest)  # heal a partial or older install
+        except OSError:
+            return False, (
+                "The earlier installed copy could not be cleared away — "
+                "it may be partly cleared — so installing stopped. Aegis "
+                "is not newly installed. You can keep running it from "
+                "here, and a later install will try clearing the earlier "
+                "copy away again."
+            )
+    try:
         shutil.copytree(source_dir, dest)
     except OSError:
-        return False, "Aegis could not be put in place. Nothing was changed; you can keep running it from here."
+        # The copy did not land. What is true now depends on what
+        # is actually at the destination, so look before speaking:
+        # a partial copy that can be taken back out is removed, and
+        # one that cannot is named, at its real place, so the
+        # person can find it.
+        partial_remains = dest.exists()
+        if partial_remains:
+            try:
+                shutil.rmtree(dest)
+            except OSError:
+                pass
+        if dest.exists():
+            earlier_clause = (
+                "The earlier installed copy was taken out to make room. "
+                if had_earlier_copy
+                else ""
+            )
+            return False, (
+                "Aegis could not be put in place. %sPart of the copy is "
+                "still at %s. Aegis is not installed and ready to use. "
+                "You can keep running it from here, and installing again "
+                "will clear the leftovers away first."
+                % (earlier_clause, dest)
+            )
+        if had_earlier_copy:
+            partial_clause = (
+                "The partial copy was removed, and "
+                if partial_remains
+                else ""
+            )
+            return False, (
+                "Aegis could not be put in place. The earlier installed "
+                "copy was taken out to make room. %sAegis is not "
+                "installed right now. You can keep running it from here, "
+                "and installing again will try once more."
+                % partial_clause
+            )
+        if partial_remains:
+            return False, (
+                "Aegis could not be put in place. The partial copy was "
+                "removed, so nothing is installed. You can keep running "
+                "it from here."
+            )
+        return False, (
+            "Aegis could not be put in place. Nothing is installed. "
+            "You can keep running it from here."
+        )
     if _tree_digests(source_dir) != _tree_digests(dest):
         shutil.rmtree(dest, ignore_errors=True)
-        return False, "The installed copy did not check out, so it was removed. Nothing was left half-installed."
+        if not dest.exists():
+            return False, "The installed copy did not check out, so it was removed. Nothing was left half-installed."
+        return False, (
+            "The installed copy did not check out. Part of it is still "
+            "at %s. It is not ready to use. You can keep running it "
+            "from here, and installing again will clear it away first."
+            % dest
+        )
     exe = dest / ("Aegis.exe" if (dest / "Aegis.exe").exists() else "Aegis")
     link = start_menu_dir() / SHORTCUT_NAME
     try:

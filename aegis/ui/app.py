@@ -66,6 +66,7 @@ from PySide6.QtWidgets import (
 
 from ..errors import AegisError
 from ..generator import DEFAULT_GENERATED_LENGTH, MAX_GENERATED_LENGTH, MIN_GENERATED_LENGTH
+from ..install_state import InstallOffer
 from ..passwords import password_feedback
 from ..setup import MASTER_PASSWORD_WARNING, printable_recovery_sheet
 from ..strongbox import KIND_DOCUMENT, KIND_LABELS
@@ -714,6 +715,78 @@ class RecoverySheet(QWidget):
 # ---------------------------------------------------------------------------
 # Dialogs
 # ---------------------------------------------------------------------------
+
+
+class InstallOfferDialog(QDialog):
+    """The first-run offer: put a copy in its permanent place.
+
+    Shown modeless over the locked screen, once per run, and never
+    a gate — the Unlock path works exactly the same whether this
+    is standing or not. It holds nothing secret: a heading, the
+    offer in plain words, a status line for the result, and its
+    buttons. That is why it needs no wipe: closing it at a lock
+    leaves nothing of the vault's behind, because it never held
+    any. The window wires the Install button; saying "Not now"
+    and, once a result is in, "Close" simply end the dialog, and
+    the window's tracking takes care of the rest.
+    """
+
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.setWindowTitle("Aegis")
+        self.setModal(False)
+        self.setMinimumWidth(460)
+        layout = QVBoxLayout(self)
+        self.heading_label = QLabel("Put Aegis in its permanent place?")
+        self.heading_label.setObjectName("SectionTitle")
+        layout.addWidget(self.heading_label)
+        self.body_label = QLabel(
+            "You are running Aegis from the folder it was opened in. "
+            "If you like, Aegis can put a copy in your Programs folder, "
+            "where it stays — and try to add “Aegis” to your Start Menu. "
+            "Your vault files are not moved or changed; they stay exactly "
+            "where you keep them. You can also keep running Aegis from "
+            "here — the app works the same either way."
+        )
+        self.body_label.setWordWrap(True)
+        layout.addWidget(self.body_label)
+        self.status_label = QLabel("")
+        self.status_label.setObjectName("Faint")
+        self.status_label.setWordWrap(True)
+        layout.addWidget(self.status_label)
+        buttons = QHBoxLayout()
+        buttons.addStretch(1)
+        self.not_now_button = QPushButton("Not now")
+        self.not_now_button.clicked.connect(self.reject)
+        buttons.addWidget(self.not_now_button)
+        self.install_button = QPushButton("Install Aegis")
+        self.install_button.setObjectName("Primary")
+        buttons.addWidget(self.install_button)
+        self.close_button = QPushButton("Close")
+        self.close_button.clicked.connect(self.accept)
+        self.close_button.hide()
+        buttons.addWidget(self.close_button)
+        layout.addLayout(buttons)
+
+    def begin_install(self) -> None:
+        """Set the working state: no more choices, a status line."""
+        self.install_button.setEnabled(False)
+        self.not_now_button.setEnabled(False)
+        self.status_label.setText(
+            "Putting Aegis in place — this takes a moment…"
+        )
+
+    def show_result(self, ok, message) -> None:
+        """Show the install's own words, and offer only Close.
+
+        The message is the mechanism's, shown word for word,
+        whether it reports success or failure — the dialog adds
+        nothing to it and takes nothing away.
+        """
+        self.status_label.setText(message)
+        self.install_button.hide()
+        self.not_now_button.hide()
+        self.close_button.show()
 
 
 class LoginEditor(QDialog):
@@ -2434,9 +2507,13 @@ class _ActivityFilter(QObject):
 class MainWindow(QMainWindow):
     """The Aegis window: locked screen, setup, key sheet, main."""
 
-    def __init__(self, controller: VaultController = None, parent=None):
+    def __init__(self, controller: VaultController = None, parent=None,
+                 install_offer=None):
         super().__init__(parent)
         self._controller = controller or VaultController()
+        self._install_offer = (
+            install_offer if install_offer is not None else InstallOffer()
+        )
         self.setWindowTitle(WINDOW_TITLE)
         self.resize(1120, 720)
         self.setMinimumSize(900, 600)
@@ -2484,6 +2561,9 @@ class MainWindow(QMainWindow):
         self._pending_vault_name = ""
         self._auth_busy = False
         self._open_dialogs = []
+        self._install_offer_handled = False
+        self._install_dialog = None
+        self._install_worker = None
         self.setup_screen.auth_gate = (
             self._try_begin_auth,
             self._end_auth,
@@ -2498,6 +2578,8 @@ class MainWindow(QMainWindow):
     # -- navigation ----------------------------------------------------
 
     def _go(self, screen: QWidget) -> None:
+        if screen is not self.locked_screen:
+            self._dismiss_install_offer()
         self.stack.setCurrentWidget(screen)
         _fade_in(screen)
 
@@ -2535,9 +2617,81 @@ class MainWindow(QMainWindow):
                 wipe()
             dialog.reject()
 
+    # -- the first-run install offer --------------------------------
+
+    def maybe_offer_install(self) -> None:
+        """Offer to install this copy, once, over the locked screen.
+
+        Modeless, by design: the offer never stands in the way of
+        the one Unlock. It is made only while the locked screen is
+        showing, only when the policy for this copy says it is
+        needed, and only once per run — accepted, declined, or
+        dismissed, it does not come back.
+        """
+        if self._install_offer_handled:
+            return
+        if self.stack.currentWidget() is not self.locked_screen:
+            return
+        if not self._install_offer.needed():
+            return
+        self._install_offer_handled = True
+        dialog = InstallOfferDialog(self)
+        self._install_dialog = dialog
+        self._track_dialog(dialog)
+        dialog.install_button.clicked.connect(
+            lambda _checked=False, d=dialog: self._accept_install_offer(d)
+        )
+        dialog.finished.connect(
+            lambda _result, d=dialog: self._install_dialog_finished(d)
+        )
+        dialog.show()
+
+    def _install_dialog_finished(self, dialog) -> None:
+        self._release_dialog(dialog)
+        if self._install_dialog is dialog:
+            self._install_dialog = None
+        dialog.deleteLater()
+
+    def _dismiss_install_offer(self) -> None:
+        """End the offer if it is standing; its cleanup runs itself."""
+        dialog = self._install_dialog
+        if dialog is not None:
+            dialog.reject()
+
+    def _accept_install_offer(self, dialog) -> None:
+        if self._install_dialog is not dialog:
+            return
+        if self._install_worker is not None and self._install_worker.isRunning():
+            return
+        dialog.begin_install()
+        worker = Worker(self._install_offer.run, self)
+        worker.done.connect(
+            lambda result, d=dialog: self._install_done(result, d)
+        )
+        worker.failed.connect(
+            lambda exc, d=dialog: self._install_failed(exc, d)
+        )
+        worker.start()
+        self._install_worker = worker
+
+    def _install_done(self, result, dialog) -> None:
+        # A result that lands after the dialog has gone — closed,
+        # or closed by a lock — lands nowhere: the person has
+        # moved on, and nothing pops back up behind them.
+        if self._install_dialog is not dialog:
+            return
+        ok, message = result
+        dialog.show_result(ok, message)
+
+    def _install_failed(self, exc, dialog) -> None:
+        if self._install_dialog is not dialog:
+            return
+        dialog.show_result(False, user_text(exc))
+
     # -- unlock / create -------------------------------------------------
 
     def _unlock(self) -> None:
+        self._dismiss_install_offer()
         screen = self.locked_screen
         screen.banner.clear()
         path = screen.vault_path()
@@ -2713,4 +2867,5 @@ def run(argv=None) -> int:
     app.setStyleSheet(theme.stylesheet())
     window = build_window()
     window.show()
+    QTimer.singleShot(0, window.maybe_offer_install)
     return app.exec()

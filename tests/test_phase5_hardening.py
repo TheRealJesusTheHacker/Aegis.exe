@@ -205,8 +205,8 @@ def test_version_triangulation():
     import aegis
 
     spec = (ROOT / "packaging" / "Aegis.spec").read_text()
-    assert aegis.__version__ == "1.0.0"
-    assert '"1.0.0"' in spec and "(1, 0, 0, 0)" in spec
+    assert aegis.__version__ == "1.0.1"
+    assert '"1.0.1"' in spec and "(1, 0, 1, 0)" in spec
 
 def test_portable_builder_refuses_vaults_and_tests(tmp_path):
     import sys

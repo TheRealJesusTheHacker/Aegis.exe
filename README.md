@@ -2,7 +2,7 @@
 
 **Sentinel Safeguard LLC — file encryption and password manager for Windows.**
 
-[![Version](https://img.shields.io/badge/version-v1.0.0-2ee06f?style=flat-square)](https://github.com/TheRealJesusTheHacker/Aegis.exe/blob/main/aegis/__init__.py)
+[![Version](https://img.shields.io/badge/version-v1.0.1-2ee06f?style=flat-square)](https://github.com/TheRealJesusTheHacker/Aegis.exe/blob/main/aegis/__init__.py)
 [![Platform](https://img.shields.io/badge/platform-Windows-0078D6?style=flat-square&logo=windows&logoColor=white)](https://github.com/TheRealJesusTheHacker/Aegis.exe)
 [![Python](https://img.shields.io/badge/Python-3-3776AB?style=flat-square&logo=python&logoColor=white)](https://www.python.org/)
 [![License](https://img.shields.io/badge/license-Proprietary-b03a2e?style=flat-square)](https://github.com/TheRealJesusTheHacker/Aegis.exe/blob/main/LICENSE)
@@ -155,7 +155,16 @@ every control does what it says.
 
 ## Status
 
-**v1.0.0 — SHIPPED 2026-10-20: the first public release.**
+**v1.0.1 — SHIPPED 2026-10-20.**
+A patch release shipped on the v1.0.0 audit pass: the
+first-run install offer now appears in the window itself
+(offered once per run when Aegis is not running from its
+installed home, never a gate), and install failure messages
+now state what actually happened. Get it from the
+[v1.0.1 release](https://github.com/TheRealJesusTheHacker/Aegis.exe/releases/tag/v1.0.1)
+— `Aegis.exe`, `AegisPortable.zip`, and `SHA256SUMS.txt`.
+
+Before this version, **v1.0.0 — SHIPPED 2026-10-20: the first public release.**
 The Phase 5 independent security audit's verdict is **PASS
 WITH DOCUMENTED RESIDUALS**: its first round found no
 critical or high issues, and its one medium and three low

@@ -293,7 +293,8 @@ factor was re-verified against its floors and ceilings and
 measured on the build machine and in the Windows workflow.
 Packaging follows the kit pattern: a tag-gated Windows workflow
 builds the one-file `Aegis.exe` (self-install offered through
-the launcher, verified by read-back, never a gate), the portable
+the launcher and, since v1.0.1, through the window's first-run
+offer, verified by read-back, never a gate), the portable
 zip, and `SHA256SUMS.txt`; a dispatch run of that workflow is
 the end-to-end proof. The audit's first round returned no
 critical or high findings; its medium finding (work finishing
@@ -328,7 +329,9 @@ passes. This is a hard gate, not a milestone.**
   reporting in the interface. *(As built: self-install is
   per-user — no admin prompt — offered through the launcher's
   `--install`, verified by read-back, with the outcome reported
-  plainly; the exe also runs without installing.)*
+  plainly; the exe also runs without installing. Since v1.0.1
+  the offer also appears in the window itself on first run —
+  once per run, never a gate.)*
 - **Portable edition (named deliverable):** a portable no-install
   edition of Aegis — runs from a folder or USB drive with no
   installation, following the Argus Portable pattern

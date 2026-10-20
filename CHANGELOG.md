@@ -5,6 +5,27 @@ the build phases in [docs/ROADMAP.md](docs/ROADMAP.md). No public
 release ships before the Phase 5 independent security audit gate —
 pre-release versions below are development milestones, not releases.
 
+## [1.0.1] — 2026-10-20
+
+### Added
+
+- **The first-run install offer, in the window itself**: when
+  Aegis is not running from its installed home, the locked
+  screen offers — once per run, standing modeless over it,
+  never a gate on unlocking — to put a copy in its permanent
+  place. Accepting runs the same checked launcher install;
+  declining, or a lock closing the offer, leaves the app
+  running exactly as it was.
+
+### Fixed
+
+- **Install failure messages now state what actually happened.**
+  Where a failure used to say nothing was changed even when it
+  had been, the message now says so when an earlier installed
+  copy was taken out to make room, and whether a partial copy
+  was removed or is still at the place it names — instead of
+  saying nothing was changed when it had been.
+
 ## [1.0.0] — 2026-10-20 — FIRST PUBLIC RELEASE
 
 ### Added
