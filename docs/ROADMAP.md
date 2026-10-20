@@ -219,6 +219,8 @@ the Phase 5 independent audit gate.
 
 ## Phase 4 — The animated UI
 
+**Status: COMPLETE — shipped as v0.5.0 (2026-10-20).**
+
 The futuristic animated PySide6 interface in the medic-kit style —
 built on the real, finished pipeline, never on mock behavior.
 
@@ -233,6 +235,45 @@ built on the real, finished pipeline, never on mock behavior.
   code.
 - Sentinel green and black; no purple anywhere; rendered-screenshot
   verification of every main state before the phase closes.
+
+**As built.** The whole core is reachable through one window: a
+locked screen with the one Unlock (master password or recovery
+key, drag-and-drop of vault files included), setup with the Phase 1
+warning verbatim and the printable recovery-key sheet, and an open
+vault with six sections — Passwords (search, reveal that hides
+itself, copy), Make a password (the generator, with a road into a
+new login), Strongbox, Lock and send, Backup sets (the armor,
+with a link-aware folder summary and a look-inside view), and
+Settings and vault care (timings, change master password, new
+recovery key, sealed-copy export, sealed-only import). The UI sits
+in `aegis/ui/` over a Qt-free controller, so the core's suite never
+touches Qt; the real OS clipboard works through Phase 2's seam with
+its auto-clear judgment intact, and Phase 2's idle guard is driven
+by real activity (keys, pointer, wheel, touch). A copied secret
+can leave only through the tracked Copy buttons — every surface
+that merely shows a secret refuses native copy, cut, selection,
+and drag — and every lock (button, idle, close) funnels through one
+path that closes open dialogs first, then wipes every screen.
+Premium bar, verified not asserted: ten rendered states screenshot-
+audited (zero painted purple; dark surfaces throughout), every
+text/background pairing computed at 4.5:1 or better — the weakest
+is disabled text on a panel at 4.80:1 — and the jargon sweep runs
+over the live widget tree of every screen. The phase went through
+the doubled audit cycle: a first independent audit returned FAIL
+on two HIGH findings (native-copy bypass; dialogs surviving a
+lock), every finding was fixed, a re-audit probed the fixes and
+returned PASS-WITH-FIXES on three narrow residuals in the same
+seam, and those are fixed and pinned too. Packaging prep ships in
+`packaging/` (one-folder spec in the kit pattern + a `--self-check`
+launch smoke hook, proven against a real build) — the release
+itself waits for Phase 5's gate, exactly as planned. Honest
+unproven items: settings are per-run, not yet saved between runs;
+the real-desktop clipboard and idle behavior are wired to the real
+Qt seams and proven offscreen, and a first run on real Windows
+hardware is still owed; the vault's file path stays visible on the
+locked screen by deliberate choice (it is the person's own file
+location, not the vault's contents — the credential and all
+content are wiped).
 
 ## Phase 5 — Hardening, the security audit gate, and packaging
 

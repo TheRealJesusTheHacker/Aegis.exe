@@ -2,7 +2,7 @@
 
 **Sentinel Safeguard LLC — file encryption and password manager for Windows.**
 
-[![Version](https://img.shields.io/badge/version-v0.4.0-2ee06f?style=flat-square)](https://github.com/TheRealJesusTheHacker/Aegis.exe/blob/main/aegis/__init__.py)
+[![Version](https://img.shields.io/badge/version-v0.5.0-2ee06f?style=flat-square)](https://github.com/TheRealJesusTheHacker/Aegis.exe/blob/main/aegis/__init__.py)
 [![Platform](https://img.shields.io/badge/platform-Windows-0078D6?style=flat-square&logo=windows&logoColor=white)](https://github.com/TheRealJesusTheHacker/Aegis.exe)
 [![Python](https://img.shields.io/badge/Python-3-3776AB?style=flat-square&logo=python&logoColor=white)](https://www.python.org/)
 [![License](https://img.shields.io/badge/license-Proprietary-b03a2e?style=flat-square)](https://github.com/TheRealJesusTheHacker/Aegis.exe/blob/main/LICENSE)
@@ -155,27 +155,31 @@ every control does what it says.
 
 ## Status
 
-**v0.4.0 — Phase 3 complete: the Strongbox, Lock-and-send, and
-Lazarus's armor.** The Strongbox is a compartment inside the vault
-for what isn't a login — recovery codes, keys, private notes, and
-document copies up to 10 MB each, checked against their recorded
-check values every time they are read. Lock-and-send seals one
-file with a password of its own for travel: the file's name stays
-inside the seal, the sealed file's name gives nothing away, and
-the flow copy says plainly that the password is the whole lock.
-Lazarus's armor seals a whole backup set into one `.aegis-armored`
-file and unseals it back byte for byte — whole at the boundary,
-neither tool reaching inside the other's format, exactly as the
-roadmap's interface point defines. Both standalone features share
-one construction re-shaped from the vault's — no new cryptography
-was invented — and each product's files open only at their own
-door: a vault, a send file, and an armored set are three formats,
-and no reader crosses them. The suite is now 369 tests, and
-Phase 3 went through the doubled adversarial self-audit cycle
-before this version was cut. That self-audit does **not** replace
-the Phase 5 independent security audit gate: no public release
-ships before that gate passes. Next is Phase 4 — the animated UI.
-The build order is in [docs/ROADMAP.md](docs/ROADMAP.md).
+**v0.5.0 — Phase 4 complete: the interface.** Aegis is now one
+window over the whole core. A locked screen with the one Unlock
+(master password or recovery key); setup with the Phase 1 warning
+word for word and the printable recovery-key sheet; and the open
+vault in six sections — Passwords (search, reveal, copy),
+Make a password (the generator), Strongbox, Lock and send,
+Backup sets, and Settings and vault care (timings, change master
+password, new recovery key, sealed-copy export, sealed-only
+import). The real operating-system clipboard works behind
+Phase 2's auto-clear seam, idle locking is driven by real
+activity, and every lock — the button, the idle guard, closing
+the window — passes through one funnel that closes open dialogs
+and wipes every screen. A secret reaches the clipboard only
+through the tracked Copy buttons; screens that merely show one
+refuse copy, cut, selection, and drag. The premium bar was
+verified on rendered screenshots (ten states, pixel-audited, no
+purple anywhere) and computed contrast (every pairing at 4.5:1
+or better). The suite is now 420 tests, and Phase 4 went through
+the doubled audit cycle — an independent audit's FAIL, a full
+fix pass, and a probed re-audit — before this version was cut.
+None of that replaces the Phase 5 independent security audit
+gate: no public release ships before that gate passes.
+Packaging prep (the one-folder spec and its launch smoke hook)
+is in `packaging/`; the release itself is Phase 5's. The build
+order is in [docs/ROADMAP.md](docs/ROADMAP.md).
 
 ### Running the core and its tests
 
@@ -199,6 +203,21 @@ beside it. Phase 3 adds `aegis.Strongbox(session)` over the same
 session, `aegis.seal_file(...)` / `aegis.open_sealed_file(...)`
 for Lock-and-send, and `aegis.seal_tree(...)` /
 `aegis.unseal_tree(...)` for Lazarus's armor.
+
+### Running the interface
+
+The interface is a PySide6 app over the same package:
+
+```
+pip install PySide6-Essentials
+python -m aegis.ui
+```
+
+`python -m aegis.ui --self-check` builds the whole window
+offscreen and reports success — the same smoke hook the
+packaging runs. The interface's tests run headless with the
+rest of the suite (the offscreen platform is set by the test
+modules themselves).
 
 A portable no-install edition (folder/USB, Argus Portable pattern) — including the portable password vault on a USB stick — is a named Phase 5 deliverable and will ship alongside the installer, after the security audit gate — see the roadmap.
 

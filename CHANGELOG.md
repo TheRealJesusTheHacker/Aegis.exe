@@ -5,6 +5,65 @@ the build phases in [docs/ROADMAP.md](docs/ROADMAP.md). No public
 release ships before the Phase 5 independent security audit gate —
 pre-release versions below are development milestones, not releases.
 
+## [0.5.0] — 2026-10-20
+
+Phase 4 — the interface: the whole core, in one window.
+
+### Added
+
+- **The Aegis window (PySide6)**: a locked screen with the one
+  Unlock — master password or recovery key, with drag-and-drop
+  of vault files — setup with the Phase 1 warning word for word
+  and the printable recovery-key sheet, and the open vault in
+  six sections: Passwords (search, a reveal that hides itself
+  after 15 seconds, copy), Make a password (the generator, with
+  a road straight into a new login), Strongbox, Lock and send,
+  Backup sets (seal a folder, look inside a set, open one back),
+  and Settings and vault care (lock and clipboard timings,
+  change master password, new recovery key, save a sealed copy,
+  bring in logins from another vault). Every control is wired
+  to the real core; every failure lands on a designed state in
+  the core's plain words.
+- **Real wiring behind Phase 2's seams**: the actual OS clipboard
+  under the auto-clear clock (a copied secret is cleared on
+  time, and at once on lock — and only ever if the clipboard
+  still holds exactly what Aegis put there), and idle locking
+  driven by real activity — keys, pointer, wheel, touch.
+- **One lock, everywhere**: the Lock button, the idle guard, and
+  closing the window all pass through a single funnel that
+  closes any open dialog first, then wipes every screen —
+  lists, fields, reveals, the recovery sheet, the setup fields.
+- **Packaging prep** (`packaging/`): the one-folder PyInstaller
+  spec in the kit pattern, with the launcher's `--self-check`
+  smoke hook — the build proves its own window constructs
+  before anything ships. The release itself belongs to Phase 5,
+  after the audit gate.
+
+### Security
+
+- **Copy discipline**: a secret can reach the clipboard only
+  through the tracked Copy buttons. Surfaces that merely show
+  one — a revealed password, a Strongbox body, the recovery
+  sheet, a generated password, the editors' secret fields —
+  refuse native copy, cut, selection, and drag; the generator's
+  own Ctrl+C is routed into the same tracked copy.
+- **Single-flight opening**: an unlock or a create can never run
+  twice or together; mid-flight, every input on the locked
+  screen is disabled, so no session can be orphaned unlocked.
+- **Failed locks stay honest and quiet**: an idle lock that
+  cannot save is reported once per episode while the guard
+  retries underneath — never spammed, never hidden.
+- **Rendered-state verification**: ten screenshots of the real
+  window audited pixel by pixel (zero painted purple, dark
+  surfaces throughout) and every text/background pairing
+  computed — all clear 4.5:1, weakest 4.80:1.
+- **The doubled audit cycle ran**: a first independent audit
+  returned FAIL (2 HIGH, 6 MEDIUM, 9 LOW findings); all were
+  fixed; the re-audit probed every fix and returned
+  PASS-WITH-FIXES on three narrow residuals in the copy seam;
+  those are fixed and pinned as regression tests. Suite: 420
+  tests (369 core + 51 interface and audit tests).
+
 ## [0.4.0] — 2026-10-20
 
 Phase 3 — the Strongbox, Lock-and-send, and Lazarus's armor.
