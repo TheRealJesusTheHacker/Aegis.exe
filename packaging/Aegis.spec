@@ -54,12 +54,12 @@ ROOT = Path(SPECPATH).parent
 
 # Windows version resource for the exe: File Explorer, the task
 # manager, and SmartScreen all read THIS — an exe with no version
-# info looks anonymous. Version 1.0.2 matches aegis.__version__
+# info looks anonymous. Version 1.0.3 matches aegis.__version__
 # for this phase; Phase 5 keeps them from drifting at release.
 version_info = None if VSVersionInfo is None else VSVersionInfo(
     ffi=FixedFileInfo(
-        filevers=(1, 0, 2, 0),
-        prodvers=(1, 0, 2, 0),
+        filevers=(1, 0, 3, 0),
+        prodvers=(1, 0, 3, 0),
         mask=0x3F,
         flags=0x0,
         OS=0x40004,
@@ -75,11 +75,11 @@ version_info = None if VSVersionInfo is None else VSVersionInfo(
                     [
                         StringStruct("CompanyName", "Sentinel Safeguard LLC"),
                         StringStruct("FileDescription", "AEGIS.EXE — file vault and password manager"),
-                        StringStruct("FileVersion", "1.0.2"),
+                        StringStruct("FileVersion", "1.0.3"),
                         StringStruct("InternalName", "Aegis"),
                         StringStruct("OriginalFilename", "Aegis.exe"),
                         StringStruct("ProductName", "AEGIS.EXE"),
-                        StringStruct("ProductVersion", "1.0.2"),
+                        StringStruct("ProductVersion", "1.0.3"),
                     ],
                 )
             ]

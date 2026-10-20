@@ -2,7 +2,7 @@
 
 **Sentinel Safeguard LLC — file encryption and password manager for Windows.**
 
-[![Version](https://img.shields.io/badge/version-v1.0.2-2ee06f?style=flat-square)](https://github.com/TheRealJesusTheHacker/Aegis.exe/blob/main/aegis/__init__.py)
+[![Version](https://img.shields.io/badge/version-v1.0.3-d29f3c?style=flat-square)](https://github.com/TheRealJesusTheHacker/Aegis.exe/blob/main/aegis/__init__.py)
 [![Platform](https://img.shields.io/badge/platform-Windows-0078D6?style=flat-square&logo=windows&logoColor=white)](https://github.com/TheRealJesusTheHacker/Aegis.exe)
 [![Python](https://img.shields.io/badge/Python-3-3776AB?style=flat-square&logo=python&logoColor=white)](https://www.python.org/)
 [![License](https://img.shields.io/badge/license-Proprietary-b03a2e?style=flat-square)](https://github.com/TheRealJesusTheHacker/Aegis.exe/blob/main/LICENSE)
@@ -155,7 +155,18 @@ every control does what it says.
 
 ## Status
 
-**v1.0.2 — SHIPPED 2026-10-20.**
+**v1.0.3 — SHIPPED 2026-10-20.**
+A patch release that gives Aegis its own face: bronze and
+steel on near-black, in place of the green the whole kit
+shared. Screens, words, and behavior are unchanged — this
+release changes colors and nothing else. Every pairing was
+re-measured in the new colors and still clears the
+readability floor, and the red kept for destructive
+confirmations is untouched. Get it from the
+[v1.0.3 release](https://github.com/TheRealJesusTheHacker/Aegis.exe/releases/tag/v1.0.3)
+— `Aegis.exe`, `AegisPortable.zip`, and `SHA256SUMS.txt`.
+
+Before this version, **v1.0.2 — SHIPPED 2026-10-20.**
 A patch release from a clean-machine bug hunt: creating
 vaults and sealed files now works on drives that can't hold
 links (USB sticks above all), a save that meets a file busy

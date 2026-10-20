@@ -5,6 +5,22 @@ the build phases in [docs/ROADMAP.md](docs/ROADMAP.md). No public
 release ships before the Phase 5 independent security audit gate —
 pre-release versions below are development milestones, not releases.
 
+## [1.0.3] — 2026-10-20
+
+### Changed
+
+- **Aegis has its own colors now: bronze and steel on
+  near-black.** The green the whole kit shared is retired.
+  Panels sit on deep bronze-black, words are polished steel,
+  and the buttons, headings, and shield mark wear the
+  shield's bronze. Every screen is laid out exactly as
+  before and every word is unchanged — this release changes
+  colors and nothing else. The red kept for destructive
+  confirmations is the same red as always, and every
+  text/background pairing was measured again in the new
+  colors: all of them still clear the fleet's readability
+  floor.
+
 ## [1.0.2] — 2026-10-20
 
 ### Fixed
