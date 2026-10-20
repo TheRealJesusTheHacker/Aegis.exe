@@ -129,6 +129,16 @@ passes. This is a hard gate, not a milestone.**
 - **Packaging** — the kit's single self-installing exe pattern: one
   file, one admin prompt, self-placement, verified install, truthful
   reporting in the interface.
+- **Portable edition (named deliverable):** a portable no-install
+  edition of Aegis — runs from a folder or USB drive with no
+  installation, following the Argus Portable pattern
+  (ArgusPortable.zip) — ships alongside the installer at Phase 5,
+  as part of this phase's packaging deliverables, and only after
+  this phase's security audit gate passes. A portable password
+  vault — your vault on a USB stick, no install, usable on the
+  machine in front of you — is a headline use case for Aegis, not
+  an afterthought, and the portable edition is built and audited
+  for exactly that use.
 
 ## Later / backlog
 
@@ -136,8 +146,9 @@ passes. This is a hard gate, not a milestone.**
   messaging so the password vault can fill logins in place. Later by
   design: it widens the attack surface, and it gets its own security
   review before it is scheduled.
-- **Portable edition** — for the future IT Toolkit USB, alongside the
-  rest of the medic kit.
+- Technician's Toolkit USB bundling — the Phase 5 portable edition
+  (see above) packaged into the Technician's Toolkit USB set,
+  alongside the rest of the medic kit.
 
 ## Standing rules
 
