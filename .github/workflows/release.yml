@@ -34,13 +34,25 @@ jobs:
       - name: Warn-file gate
         shell: python
         run: |
-          import pathlib
+          import pathlib, re
+          # Exact watchlist (verified against the v1.0.0 proof
+          # build): Unix-only standard-library names, Java
+          # bridges, one frozen-importlib internal, and
+          # pythoncom/win32com — the optional Start Menu shortcut
+          # helper, imported lazily and guarded in
+          # packaging/install.py. Anything else fails the gate.
+          WATCHLIST = {
+              "'java.lang'", "_frozen_importlib_external",
+              "_posixsubprocess", "_winreg", "fcntl", "grp", "java",
+              "posix", "pwd", "pythoncom", "resource", "vms_lib",
+              "win32com",
+          }
           warn = pathlib.Path("build/Aegis/warn-Aegis.txt")
           text = warn.read_text() if warn.exists() else ""
-          allowed = ("aegis", "packaging")
-          bad = [l for l in text.splitlines() if "missing module named" in l and not any(a in l for a in allowed)]
-          assert not bad, "unexpected missing modules:\n" + "\n".join(bad[:20])
-          print("warn gate OK")
+          found = set(re.findall(r"missing module named (\S+)", text))
+          bad = found - WATCHLIST
+          assert not bad, "unexpected missing modules: %s" % sorted(bad)
+          print("warn gate OK; watchlisted:", sorted(found))
       - name: Staged-exe launch smoke test
         run: dist/Aegis/Aegis.exe --self-check
       - name: Portable edition + checksums
