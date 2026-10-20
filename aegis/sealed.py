@@ -75,6 +75,7 @@ from .errors import (
 )
 from .kdf import DEFAULT_PARAMS, KdfParams, derive_key, validate_params
 from .passwords import MIN_PASSWORD_LENGTH
+from .publish import link_into_place
 
 __all__ = [
     "SEND_MAGIC",
@@ -672,13 +673,18 @@ def write_new_file(destination, write_fn) -> Path:
 
     ``write_fn`` is called with the open binary handle of a
     temporary file beside the destination; when it returns, the
-    file is flushed, synced, and linked into place — so a
-    half-written file can never sit at the destination looking
-    whole, and something already at the destination is never
-    replaced. Mirrors the vault's and the sealed export's publish
-    discipline.
+    file is flushed, synced, and put into place complete by
+    :mod:`aegis.publish` — so a half-written file can never sit
+    at the destination looking whole, and something already at
+    the destination is never replaced, on any drive. Mirrors the
+    vault's and the sealed export's publish discipline.
     """
     dest = Path(destination)
+    if _format.windows_unsafe_segment(dest.name):
+        raise SealedSaveError(
+            "That name can't be used for a file on Windows. "
+            "Pick a different name and try again."
+        )
     if os.path.lexists(dest):
         raise SealedExistsError()
     directory = str(dest.parent) if str(dest.parent) else "."
@@ -692,7 +698,7 @@ def write_new_file(destination, write_fn) -> Path:
             handle.flush()
             os.fsync(handle.fileno())
         try:
-            os.link(tmp_name, dest)
+            link_into_place(tmp_name, dest)
         except FileExistsError:
             raise SealedExistsError() from None
         except OSError:

@@ -26,8 +26,10 @@ import shutil
 import tempfile
 from pathlib import Path
 
+from . import format as _format
 from .credentials import CredentialStore
 from .errors import VaultExistsError, VaultLockedError, VaultSaveError
+from .publish import link_into_place
 
 __all__ = ["export_sealed_copy", "import_from_vault"]
 
@@ -39,12 +41,18 @@ def export_sealed_copy(session, destination) -> Path:
     the newest logins. The destination must not exist — a copy is
     never written over anything. The copy is published the same
     careful way a vault is: a temporary file beside the
-    destination, linked into place only when complete, so a
-    half-made copy can never sit at the destination looking whole.
+    destination, put into place complete by :mod:`aegis.publish`,
+    so a half-made copy can never sit at the destination looking
+    whole, on any drive.
     """
     if session.is_locked:
         raise VaultLockedError()
     dest = Path(destination)
+    if _format.windows_unsafe_segment(dest.name):
+        raise VaultSaveError(
+            "That name can't be used for a vault file on "
+            "Windows. Pick a different name and try again."
+        )
     if os.path.lexists(dest):
         raise VaultExistsError()
     session.save()
@@ -59,7 +67,7 @@ def export_sealed_copy(session, destination) -> Path:
             out.flush()
             os.fsync(out.fileno())
         try:
-            os.link(tmp_name, dest)
+            link_into_place(tmp_name, dest)
         except FileExistsError:
             raise VaultExistsError() from None
         except OSError:

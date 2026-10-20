@@ -544,8 +544,10 @@ def parse_file_prefix(raw: bytes):
 # Names that Windows treats as the same as a plainer name, or as a
 # device rather than a file. Validation is string-level and runs on
 # every platform, so a set sealed anywhere is refused everywhere.
+# CONIN$ and CONOUT$ are the console's own names: a "file" carrying
+# one of them talks to the console instead of the drive.
 _DOS_DEVICES = frozenset(
-    ["CON", "PRN", "AUX", "NUL"]
+    ["CON", "PRN", "AUX", "NUL", "CONIN$", "CONOUT$"]
     + ["COM%d" % i for i in range(1, 10)]
     + ["LPT%d" % i for i in range(1, 10)]
 )
@@ -559,7 +561,17 @@ def windows_unsafe_segment(segment: str) -> bool:
     extension — so "notes." and "notes" are the same file there,
     and "NUL.txt" is not a file at all. Accepting such a name
     would let two different names land on one place.
+
+    A colon is never part of a plain name there either: it is
+    how Windows spells a drive ("C:") or a hidden side-stream
+    attached to a file ("notes.txt:extra"). A name carrying one
+    would land somewhere other than where it says — a drive-
+    relative name can leave the folder it was opened into
+    entirely, and a side-stream's contents hide behind a file
+    that looks empty — so it is refused the same way.
     """
+    if ":" in segment:
+        return True
     if segment.endswith((".", " ")):
         return True
     stem = segment.split(".", 1)[0].upper()

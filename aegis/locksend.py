@@ -162,6 +162,13 @@ def seal_file(source, password: str, destination=None, *,
             "Pick a file and try again."
         )
     filename = src.name
+    if _format.windows_unsafe_segment(filename):
+        raise SealedSourceError(
+            "That file's name can't be used on Windows, so it "
+            "can't be sealed for sending — it could never be "
+            "opened there under that name. Rename the file and "
+            "try again."
+        )
 
     if destination is None:
         dest = src.parent / DEFAULT_SEALED_NAME

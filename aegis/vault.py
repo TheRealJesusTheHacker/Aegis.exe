@@ -64,6 +64,7 @@ from .errors import (
 )
 from .format import Header
 from .kdf import DEFAULT_PARAMS, KdfParams, derive_key, validate_params
+from .publish import link_into_place, replace_with_retry
 from .passwords import MIN_PASSWORD_LENGTH
 from .recovery import format_recovery_key, recovery_key_to_bytes
 
@@ -259,11 +260,12 @@ class VaultSession:
 
         With ``overwrite`` (session saves) the temp file replaces the
         target unconditionally. Without it (vault creation) the temp
-        file is hard-linked into place, which fails with
-        :class:`VaultExistsError` if anything already sits at the
-        target — a racing creator can never be silently overwritten.
-        Either way the containing directory is fsynced afterwards so
-        the publish itself is durable.
+        file is put into place by :mod:`aegis.publish`, which fails
+        with :class:`VaultExistsError` if anything already sits at
+        the target — a racing creator can never be silently
+        overwritten, on any drive. Either way the containing
+        directory is fsynced afterwards so the publish itself is
+        durable.
         """
         directory = str(self._path.parent) if str(self._path.parent) else "."
         fd, tmp_name = tempfile.mkstemp(
@@ -276,10 +278,10 @@ class VaultSession:
                 handle.flush()
                 os.fsync(handle.fileno())
             if overwrite:
-                os.replace(tmp_name, self._path)
+                replace_with_retry(tmp_name, self._path)
             else:
                 try:
-                    os.link(tmp_name, self._path)
+                    link_into_place(tmp_name, self._path)
                 except FileExistsError:
                     raise VaultExistsError() from None
             published = True
@@ -604,6 +606,11 @@ class Vault:
             VaultSaveError: if the new vault file cannot be written.
         """
         target = Path(path)
+        if _format.windows_unsafe_segment(target.name):
+            raise VaultSaveError(
+                "That name can't be used for a vault file on "
+                "Windows. Pick a different name and try again."
+            )
         if os.path.lexists(target):
             raise VaultExistsError()
         if not isinstance(password, str):

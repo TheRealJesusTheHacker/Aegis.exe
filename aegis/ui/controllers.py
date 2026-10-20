@@ -33,6 +33,7 @@ import tempfile
 import time
 from pathlib import Path
 
+from .. import format as _format
 from ..armor import armor_manifest, seal_tree, unseal_tree
 from ..clipboard import (
     DEFAULT_CLEAR_AFTER_SECONDS,
@@ -49,6 +50,7 @@ from ..generator import generate_password
 from ..idle import DEFAULT_IDLE_SECONDS, IdleGuard
 from ..kdf import DEFAULT_PARAMS
 from ..locksend import open_sealed_file, seal_file
+from ..publish import rename_with_retry
 from ..strongbox import MAX_DOCUMENT_BYTES, Strongbox
 from ..transfer import export_sealed_copy, import_from_vault
 from ..vault import Vault
@@ -375,6 +377,13 @@ class VaultController:
         """Write a document copy out; never overwrites."""
         filename, data = self.strongbox.read_document(entry_id)
         dest = Path(destination)
+        if _format.windows_unsafe_segment(dest.name):
+            from ..errors import SealedSaveError
+
+            raise SealedSaveError(
+                "That name can't be used for a file on Windows. "
+                "Pick a different name and try again."
+            )
         try:
             with open(dest, "xb") as handle:
                 handle.write(data)
@@ -457,7 +466,7 @@ class VaultController:
                     "Move it, rename it, or open this into a "
                     "different folder." % staged.name
                 )
-            os.rename(staged, target)
+            rename_with_retry(staged, target)
         finally:
             import shutil
 

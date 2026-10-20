@@ -64,6 +64,31 @@ jobs:
           print("warn gate OK; watchlisted:", sorted(found))
       - name: Staged-exe launch smoke test
         run: dist/Aegis/Aegis.exe --self-check
+      - name: Staged-exe real launch, portable and installed layouts (offscreen)
+        shell: pwsh
+        run: |
+          $env:QT_QPA_PLATFORM = "offscreen"
+          function Test-Launch($exe) {
+            $p = Start-Process -FilePath $exe -PassThru
+            Start-Sleep -Seconds 6
+            if ($p.HasExited) { throw "Aegis exited early from $exe (code $($p.ExitCode))" }
+            Stop-Process -Id $p.Id -Force
+            Write-Host "real launch OK: $exe"
+          }
+          # Portable layout: not the installed home, so the
+          # first-run install offer is scheduled in the frozen
+          # build as well — the launch must still reach and hold
+          # its first window.
+          Test-Launch "dist/Aegis/Aegis.exe"
+          # Installed layout: the same build copied into the
+          # installed home its detection computes, where no
+          # offer is due.
+          $root = Join-Path $env:RUNNER_TEMP "aegis-fake-programs"
+          $dest = Join-Path $root "Aegis"
+          New-Item -ItemType Directory -Force $root | Out-Null
+          Copy-Item -Recurse "dist/Aegis" $dest
+          $env:AEGIS_INSTALL_ROOT = $root
+          Test-Launch (Join-Path $dest "Aegis.exe")
       - name: Portable edition + checksums
         shell: python
         run: |

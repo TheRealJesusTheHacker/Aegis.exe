@@ -5,6 +5,34 @@ the build phases in [docs/ROADMAP.md](docs/ROADMAP.md). No public
 release ships before the Phase 5 independent security audit gate —
 pre-release versions below are development milestones, not releases.
 
+## [1.0.2] — 2026-10-20
+
+### Fixed
+
+- **Creating a vault or a sealed file on a drive that can't
+  hold links — a USB stick above all — no longer fails.**
+  Putting a finished file in place normally links it there;
+  drives without links now get the finished bytes copied into
+  a name claimed for Aegis alone. Nothing is ever overwritten,
+  on any drive, and a copy cut short is removed.
+- **A save that meets a briefly busy file now waits and tries
+  again.** A file just written is often being looked over by
+  the machine's own safety checks at the moment it should move
+  into place; that refusal is brief, and a save now waits it
+  out over about a second before reporting a failure.
+- **Names carrying a colon are refused wherever Aegis reads
+  or writes a name**, alongside the device names and trailing
+  dots and spaces refused before — a colon is how Windows
+  spells a drive or a hidden side-stream, so such a name
+  would land somewhere other than where it says. The
+  console's own names are refused as device names too.
+- **Sealing refuses those names up front.** A folder or file
+  whose name Windows can't use is now refused at sealing
+  time, in plain language, instead of producing a sealed set
+  or file that could never be opened — and a name Aegis is
+  asked to write to (a new vault, a sealed file, an opened
+  folder, a saved document copy) is checked the same way.
+
 ## [1.0.1] — 2026-10-20
 
 ### Added

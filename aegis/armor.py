@@ -62,6 +62,7 @@ from .errors import (
     VaultLockedError,
 )
 from .kdf import DEFAULT_PARAMS, KdfParams
+from .publish import rename_with_retry
 from .sealed import (
     ARMOR_MAGIC,
     SealedWriter,
@@ -142,6 +143,14 @@ def _scan_tree(root: Path):
         filenames.sort()
         current = Path(dirpath)
         for name in dirnames:
+            if _format.windows_unsafe_segment(name):
+                rel = (current / name).relative_to(root).as_posix()
+                raise ArmorRefusalError(
+                    "Aegis found a name Windows can't use (at "
+                    "\"%s\") and can't seal it — a set sealed with "
+                    "it could never be opened there. Rename it "
+                    "and try again." % rel
+                )
             if (current / name).is_symlink():
                 rel = (current / name).relative_to(root).as_posix()
                 raise ArmorRefusalError(
@@ -155,6 +164,13 @@ def _scan_tree(root: Path):
         for name in filenames:
             path = current / name
             rel = path.relative_to(root).as_posix()
+            if _format.windows_unsafe_segment(name):
+                raise ArmorRefusalError(
+                    "Aegis found a name Windows can't use (at "
+                    "\"%s\") and can't seal it — a set sealed with "
+                    "it could never be opened there. Rename it "
+                    "and try again." % rel
+                )
             if path.is_symlink():
                 raise ArmorRefusalError(
                     "Aegis found a link in the folder (at \"%s\") "
@@ -415,6 +431,11 @@ def unseal_tree(sealed_path, password: str, destination, *, place_guard=None) ->
     checked out — a set that fails partway leaves nothing behind.
     """
     dest = Path(destination)
+    if _format.windows_unsafe_segment(dest.name):
+        raise SealedSaveError(
+            "That name can't be used for a folder on Windows. "
+            "Pick a different name and try again."
+        )
     if os.path.lexists(dest):
         raise SealedExistsError()
     parent = dest.parent if str(dest.parent) else Path(".")
@@ -453,7 +474,7 @@ def unseal_tree(sealed_path, password: str, destination, *, place_guard=None) ->
         if os.path.lexists(dest):
             raise SealedExistsError()
         try:
-            os.rename(staging, dest)
+            rename_with_retry(staging, dest)
         except OSError:
             raise SealedSaveError() from None
         staging = None
