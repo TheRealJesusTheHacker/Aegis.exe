@@ -185,16 +185,18 @@ def test_passwords_page_flow(qapp, window, controller, tmp_path):
     page.search.setText("fake-password")
     assert page.list.count() == 0
     page.search.setText("")
-    # Delete through the page (confirm answered yes).
+    # Delete through the page (confirm answered yes). Since
+    # Phase 5 the confirmation is a tracked dialog built by
+    # _confirm, so the seam the test answers is _confirm itself.
     page.list.setCurrentRow(0)
-    from PySide6.QtWidgets import QMessageBox
+    from aegis.ui import app as app_module
 
-    original = QMessageBox.question
-    QMessageBox.question = staticmethod(lambda *a, **k: QMessageBox.Yes)
+    original = app_module._confirm
+    app_module._confirm = lambda *a, **k: True
     try:
         page._delete()
     finally:
-        QMessageBox.question = original
+        app_module._confirm = original
     assert controller.search_logins("") == []
     assert entry.id  # silence linters; the store state is the proof
 
