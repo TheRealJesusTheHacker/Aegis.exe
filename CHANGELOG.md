@@ -5,6 +5,48 @@ the build phases in [docs/ROADMAP.md](docs/ROADMAP.md). No public
 release ships before the Phase 5 independent security audit gate —
 pre-release versions below are development milestones, not releases.
 
+## [1.0.0] — 2026-10-20 (release candidate — audit in progress)
+
+### Added
+
+- `docs/THREAT-MODEL.md`: who Aegis protects you from and who
+  it cannot, in plain language, matched to the program's actual
+  behavior — including the honest limits (a compromised running
+  machine, losing both the master password and the recovery
+  key, a whole vault file swapped for an older copy).
+- Windows release workflow: version triangulation, the full
+  suite on Windows, the PyInstaller build with a warning gate,
+  the staged-exe launch smoke test, `AegisPortable.zip`, and
+  `SHA256SUMS.txt`. The release itself is published only after
+  the independent security audit passes.
+- Portable edition: one folder, no installation, with an honest
+  data-footprint statement inside the zip.
+- Launcher `--install` / `--uninstall`: self-placement with a
+  read-back check; a copy that does not check out is removed,
+  never reported as installed. Installing is offered, never
+  required — the app runs the same without it.
+
+### Changed
+
+- If Aegis locks while a sealed file is being opened or a
+  sealed backup set is being restored, the result is no longer
+  placed: the held work is removed and nothing new appears on
+  disk behind the locked screen. (This reverses the Phase 4
+  behavior on the Phase 5 audit's finding.)
+- Every confirmation question and the recovery-sheet print
+  dialog now run under the same lock discipline as all other
+  dialogs: a lock closes them.
+- File names that Windows would collapse or treat as devices
+  (trailing dots or spaces; CON, NUL, COM1–COM9, LPT1–LPT9,
+  with or without an extension) are refused when a sealed file,
+  a backup set, or a Strongbox document is opened.
+- Memory handling: staged copies in the sealed-file reader and
+  writer, the saved-login list, and a session's held contents
+  are now emptied in place at close and lock, in addition to
+  the key buffers that were already wiped. (What the language
+  itself keeps copies of cannot be scrubbed; the threat model
+  says so plainly.)
+
 ## [0.5.0] — 2026-10-20
 
 Phase 4 — the interface: the whole core, in one window.

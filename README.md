@@ -2,7 +2,7 @@
 
 **Sentinel Safeguard LLC — file encryption and password manager for Windows.**
 
-[![Version](https://img.shields.io/badge/version-v0.5.0-2ee06f?style=flat-square)](https://github.com/TheRealJesusTheHacker/Aegis.exe/blob/main/aegis/__init__.py)
+[![Version](https://img.shields.io/badge/version-v1.0.0-2ee06f?style=flat-square)](https://github.com/TheRealJesusTheHacker/Aegis.exe/blob/main/aegis/__init__.py)
 [![Platform](https://img.shields.io/badge/platform-Windows-0078D6?style=flat-square&logo=windows&logoColor=white)](https://github.com/TheRealJesusTheHacker/Aegis.exe)
 [![Python](https://img.shields.io/badge/Python-3-3776AB?style=flat-square&logo=python&logoColor=white)](https://www.python.org/)
 [![License](https://img.shields.io/badge/license-Proprietary-b03a2e?style=flat-square)](https://github.com/TheRealJesusTheHacker/Aegis.exe/blob/main/LICENSE)
@@ -155,71 +155,35 @@ every control does what it says.
 
 ## Status
 
-**v0.5.0 — Phase 4 complete: the interface.** Aegis is now one
-window over the whole core. A locked screen with the one Unlock
-(master password or recovery key); setup with the Phase 1 warning
-word for word and the printable recovery-key sheet; and the open
-vault in six sections — Passwords (search, reveal, copy),
-Make a password (the generator), Strongbox, Lock and send,
-Backup sets, and Settings and vault care (timings, change master
-password, new recovery key, sealed-copy export, sealed-only
-import). The real operating-system clipboard works behind
-Phase 2's auto-clear seam, idle locking is driven by real
-activity, and every lock — the button, the idle guard, closing
-the window — passes through one funnel that closes open dialogs
-and wipes every screen. A secret reaches the clipboard only
-through the tracked Copy buttons; screens that merely show one
-refuse copy, cut, selection, and drag. The premium bar was
-verified on rendered screenshots (ten states, pixel-audited, no
-purple anywhere) and computed contrast (every pairing at 4.5:1
-or better). The suite is now 420 tests, and Phase 4 went through
-the doubled audit cycle — an independent audit's FAIL, a full
-fix pass, and a probed re-audit — before this version was cut.
-None of that replaces the Phase 5 independent security audit
-gate: no public release ships before that gate passes.
-Packaging prep (the one-folder spec and its launch smoke hook)
-is in `packaging/`; the release itself is Phase 5's. The build
-order is in [docs/ROADMAP.md](docs/ROADMAP.md).
+**v1.0.0 — Phase 5 release candidate: hardening and packaging
+complete; the independent security audit is in progress.** The
+public release ships only when that audit's verdict is a pass —
+until then this is a release-prep build, not a released product.
 
-### Running the core and its tests
+Phase 5 added: the plain-language threat model
+(`docs/THREAT-MODEL.md`) — who Aegis protects you from and,
+honestly, who it cannot; a memory-handling pass (staged copies
+and caches are emptied in place at lock and close, on top of the
+key wiping that was already there); a fix so work that finishes
+after a lock places nothing on disk; the Windows release
+workflow (full suite on Windows, one-file build, launch smoke
+test, checksums); and the portable edition below.
 
-The vault core is a Python package (`aegis/`) with two dependencies,
-both vetted cryptographic libraries:
+**Portable edition:** `AegisPortable.zip` opens to one folder
+and runs with no installation. What it writes, honestly: your
+vault files live where you put them and are opened in place;
+files you open out of a vault are written where you choose (and
+not at all if Aegis locked while the work ran); app settings
+are kept for that run only — this edition saves no settings
+file. There is no hidden data folder and no claim of one.
 
-```
-pip install -r requirements.txt
-python -m pytest tests/ -q
-```
-
-`aegis.Vault.create(path, password)` makes a sealed vault and hands
-back the one-time recovery key; `aegis.Vault.open(path, ...)` opens
-one with either the master password or the recovery key. The
-interface is deliberately small — Phases 2 through 4 build on it,
-and nothing else in Aegis invents its own cryptography. The
-password vault is `aegis.CredentialStore(session)` over an open
-session, with `aegis.generate_password(...)`,
-`aegis.AutoClearClipboard(...)`, and `aegis.IdleGuard(...)`
-beside it. Phase 3 adds `aegis.Strongbox(session)` over the same
-session, `aegis.seal_file(...)` / `aegis.open_sealed_file(...)`
-for Lock-and-send, and `aegis.seal_tree(...)` /
-`aegis.unseal_tree(...)` for Lazarus's armor.
-
-### Running the interface
-
-The interface is a PySide6 app over the same package:
-
-```
-pip install PySide6-Essentials
-python -m aegis.ui
-```
-
-`python -m aegis.ui --self-check` builds the whole window
-offscreen and reports success — the same smoke hook the
-packaging runs. The interface's tests run headless with the
-rest of the suite (the offscreen platform is set by the test
-modules themselves).
-
-A portable no-install edition (folder/USB, Argus Portable pattern) — including the portable password vault on a USB stick — is a named Phase 5 deliverable and will ship alongside the installer, after the security audit gate — see the roadmap.
+Before this version, **v0.5.0 — Phase 4 complete: the
+interface** — one window over the whole core: a locked screen
+with the one Unlock (master password or recovery key); setup
+with the Phase 1 warning word for word and the printable
+recovery-key sheet; and the open vault in six sections —
+Passwords, Make a password, Strongbox, Lock and send, Backup
+sets, and Settings and vault care.
 
 ## License
 

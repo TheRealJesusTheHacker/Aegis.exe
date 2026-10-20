@@ -277,6 +277,30 @@ content are wiped).
 
 ## Phase 5 — Hardening, the security audit gate, and packaging
 
+**Status: HARDENING AND PACKAGING COMPLETE (v1.0.0 release
+candidate, 2026-10-20); the independent security audit is IN
+PROGRESS and the gate has NOT passed yet. No public release
+ships before it does.**
+
+*As built so far:* the threat model is written
+(`docs/THREAT-MODEL.md`); the memory-handling review is done —
+key buffers were already wiped at lock/close, and Phase 5 added
+in-place emptying of the sealed reader/writer staging buffers,
+the saved-login list, and a session's held contents, with the
+language-level limit (interpreter-kept copies cannot be
+scrubbed) stated honestly in the threat model. The sign-in work
+factor was re-verified against its floors and ceilings and
+measured on the build machine and in the Windows workflow.
+Packaging follows the kit pattern: a tag-gated Windows workflow
+builds the one-file `Aegis.exe` (self-install offered through
+the launcher, verified by read-back, never a gate), the portable
+zip, and `SHA256SUMS.txt`; a dispatch run of that workflow is
+the end-to-end proof. The audit's first round returned no
+critical or high findings; its medium finding (work finishing
+after a lock still placed plain files) and three low findings
+are fixed in this version. Round 2 (the re-audit of the fixes)
+is the coordinator's to call, and the release waits for it.
+
 **THE GATE: no public release of Aegis ships before this phase
 passes. This is a hard gate, not a milestone.**
 
