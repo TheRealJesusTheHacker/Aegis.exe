@@ -1,17 +1,20 @@
-"""The Aegis look: Sentinel green and black, nothing else.
+"""The Aegis look: the shield of Olympus — bronze, steel, and black.
 
-One palette for the whole medic kit, shared with Argus, Charon,
-and Beerus: near-black green surfaces, one Sentinel green for the
-actions that matter, white-green text. No purple anywhere, no light
-backgrounds anywhere. Every text/background pairing in this file
-clears the fleet's 4.5:1 contrast floor — the pairing table is
-computed, not eyeballed, and the test suite pins it:
+Aegis carries its own namesake palette (the fleet's palette
+program, owner order 2026-10-20): deep bronze-black surfaces,
+polished-steel text, and one shield bronze for the actions that
+matter. No purple anywhere, no light backgrounds anywhere. Every
+text/background pairing in this file clears the fleet's 4.5:1
+contrast floor — the pairing table is computed, not eyeballed,
+and the test suite pins it:
 
-- TEXT on BG / PANEL / INPUT_BG          ≈ 13–15:1
+- TEXT on BG / PANEL / INPUT_BG          ≈ 15:1
 - TEXT_FAINT on BG / PANEL               ≈ 7:1
-- GREEN on BG / PANEL                    ≈ 8:1
-- GREEN_DARK_TEXT on GREEN (buttons)     ≈ 9:1
-- RED_TEXT on RED (rare accent)         ≈ 6:1
+- PRIMARY (shield bronze) on BG / PANEL  ≈ 8:1
+- PRIMARY_DARK_TEXT on PRIMARY (buttons) ≈ 8:1
+- ACCENT (polished bronze) on BG / PANEL ≈ 12:1
+- RED_TEXT on RED (rare accent)          ≈ 6:1
+- DISABLED_TEXT on PANEL (the floor)     ≈ 5.6:1
 """
 
 from __future__ import annotations
@@ -22,9 +25,10 @@ __all__ = [
     "PANEL_BORDER",
     "TEXT",
     "TEXT_FAINT",
-    "GREEN",
-    "GREEN_HOVER",
-    "GREEN_DARK_TEXT",
+    "PRIMARY",
+    "PRIMARY_HOVER",
+    "PRIMARY_DARK_TEXT",
+    "ACCENT",
     "RED",
     "RED_TEXT",
     "ERROR_TEXT",
@@ -36,20 +40,21 @@ __all__ = [
     "stylesheet",
 ]
 
-BG = "#060a07"  # window background, near-black green
-PANEL = "#0c130d"  # raised panels
-PANEL_BORDER = "#1d2b1f"
-TEXT = "#e8f2ea"  # primary text
-TEXT_FAINT = "#8fae94"  # secondary text (still >= 4.5:1 on BG/PANEL)
-GREEN = "#2ee06f"  # the Sentinel green: primary actions, headings
-GREEN_HOVER = "#46f086"  # the green, hovered
-GREEN_DARK_TEXT = "#04150a"  # text on the green itself
+BG = "#0a0806"  # window background, bronze-black
+PANEL = "#14100b"  # raised panels
+PANEL_BORDER = "#2f2718"
+TEXT = "#dfe3e6"  # primary text, polished steel
+TEXT_FAINT = "#98a0a3"  # secondary text (still >= 4.5:1 on BG/PANEL)
+PRIMARY = "#d29f3c"  # the shield bronze: primary actions, headings
+PRIMARY_HOVER = "#e6c87a"  # the bronze, polished (the ACCENT), hovered
+PRIMARY_DARK_TEXT = "#140e02"  # text on the bronze itself
+ACCENT = "#e6c87a"  # polished bronze: the shield's bright edge
 RED = "#b03a2e"  # rare accent only: destructive confirmations
 RED_TEXT = "#ffffff"  # text on the red accent
 ERROR_TEXT = "#ff9d8f"  # words on the error banner
 ERROR_BG = "#2a100d"  # the error banner's ground
-INPUT_BG = "#0a0f0a"
-DISABLED_TEXT = "#718671"  # disabled controls only, never body copy;
+INPUT_BG = "#0e0b08"
+DISABLED_TEXT = "#868d90"  # disabled controls only, never body copy;
 # still clears the 4.5:1 floor on both dark grounds (pinned below)
 
 
@@ -80,12 +85,14 @@ CONTRAST_PAIRS = {
     "text in field": (TEXT, INPUT_BG),
     "faint text on window": (TEXT_FAINT, BG),
     "faint text on panel": (TEXT_FAINT, PANEL),
-    "green on window": (GREEN, BG),
-    "green on panel": (GREEN, PANEL),
-    "button text on green": (GREEN_DARK_TEXT, GREEN),
-    "button text on hovered green": (GREEN_DARK_TEXT, GREEN_HOVER),
+    "bronze on window": (PRIMARY, BG),
+    "bronze on panel": (PRIMARY, PANEL),
+    "button text on bronze": (PRIMARY_DARK_TEXT, PRIMARY),
+    "button text on hovered bronze": (PRIMARY_DARK_TEXT, PRIMARY_HOVER),
     "accent text on red": (RED_TEXT, RED),
-    "green in field": (GREEN, INPUT_BG),
+    "bronze in field": (PRIMARY, INPUT_BG),
+    "polished bronze on window": (ACCENT, BG),
+    "polished bronze on panel": (ACCENT, PANEL),
     "error words on error ground": (ERROR_TEXT, ERROR_BG),
     "disabled words on window": (DISABLED_TEXT, BG),
     "disabled words on panel": (DISABLED_TEXT, PANEL),
@@ -121,7 +128,7 @@ QLabel#ScreenTitle {{
 QLabel#SectionTitle {{
     font-size: 15px;
     font-weight: 600;
-    color: {GREEN};
+    color: {PRIMARY};
 }}
 QLabel#Faint {{
     color: {TEXT_FAINT};
@@ -139,7 +146,7 @@ QFrame#Sidebar {{
     border-right: 1px solid {PANEL_BORDER};
 }}
 QFrame#Seam {{
-    background: {GREEN};
+    background: {PRIMARY};
     border: none;
     border-radius: 1px;
 }}
@@ -156,8 +163,8 @@ QPushButton {{
     padding: 8px 16px;
 }}
 QPushButton:hover {{
-    border-color: {GREEN};
-    color: {GREEN};
+    border-color: {PRIMARY};
+    color: {PRIMARY};
 }}
 QPushButton:disabled {{
     color: {DISABLED_TEXT};
@@ -166,14 +173,14 @@ QPushButton#Peek {{
     padding: 8px 4px;
 }}
 QPushButton#Primary {{
-    background: {GREEN};
-    color: {GREEN_DARK_TEXT};
-    border: 1px solid {GREEN};
+    background: {PRIMARY};
+    color: {PRIMARY_DARK_TEXT};
+    border: 1px solid {PRIMARY};
     font-weight: 700;
 }}
 QPushButton#Primary:hover {{
-    background: {GREEN_HOVER};
-    color: {GREEN_DARK_TEXT};
+    background: {PRIMARY_HOVER};
+    color: {PRIMARY_DARK_TEXT};
 }}
 QPushButton#Primary:disabled {{
     background: {PANEL};
@@ -200,7 +207,7 @@ QPushButton#Nav:hover {{
 }}
 QPushButton#Nav:checked {{
     background: {INPUT_BG};
-    color: {GREEN};
+    color: {PRIMARY};
     font-weight: 600;
 }}
 QLineEdit, QPlainTextEdit, QTextEdit, QSpinBox, QComboBox {{
@@ -209,12 +216,12 @@ QLineEdit, QPlainTextEdit, QTextEdit, QSpinBox, QComboBox {{
     border: 1px solid {PANEL_BORDER};
     border-radius: 8px;
     padding: 8px 10px;
-    selection-background-color: {GREEN};
-    selection-color: {GREEN_DARK_TEXT};
+    selection-background-color: {PRIMARY};
+    selection-color: {PRIMARY_DARK_TEXT};
 }}
 QLineEdit:focus, QPlainTextEdit:focus, QTextEdit:focus,
 QSpinBox:focus, QComboBox:focus {{
-    border-color: {GREEN};
+    border-color: {PRIMARY};
 }}
 QListWidget {{
     background: {INPUT_BG};
@@ -229,13 +236,13 @@ QListWidget::item {{
 }}
 QListWidget::item:selected {{
     background: {PANEL};
-    color: {GREEN};
+    color: {PRIMARY};
 }}
 QComboBox QAbstractItemView {{
     background: {PANEL};
     color: {TEXT};
     selection-background-color: {INPUT_BG};
-    selection-color: {GREEN};
+    selection-color: {PRIMARY};
 }}
 QCheckBox {{
     spacing: 8px;
@@ -248,8 +255,8 @@ QCheckBox::indicator {{
     background: {INPUT_BG};
 }}
 QCheckBox::indicator:checked {{
-    background: {GREEN};
-    border-color: {GREEN};
+    background: {PRIMARY};
+    border-color: {PRIMARY};
 }}
 QSlider::groove:horizontal {{
     height: 4px;
@@ -261,7 +268,7 @@ QSlider::handle:horizontal {{
     height: 16px;
     margin: -6px 0;
     border-radius: 8px;
-    background: {GREEN};
+    background: {PRIMARY};
 }}
 QProgressBar {{
     background: {INPUT_BG};
@@ -272,7 +279,7 @@ QProgressBar {{
     color: transparent;
 }}
 QProgressBar::chunk {{
-    background: {GREEN};
+    background: {PRIMARY};
     border-radius: 5px;
 }}
 QScrollBar:vertical {{

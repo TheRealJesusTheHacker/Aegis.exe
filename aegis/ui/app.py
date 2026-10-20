@@ -83,16 +83,16 @@ TAGLINE = "It does not open — for anyone but you."
 
 
 def shield_pixmap(size: int = 84) -> QPixmap:
-    """The shield mark, drawn in code: a green outline on nothing.
+    """The shield mark, drawn in code: a bronze outline on nothing.
 
     Drawn, not shipped as an image file, so the mark is exactly the
-    palette green at any size and no asset can drift from it.
+    shield bronze at any size and no asset can drift from it.
     """
     pixmap = QPixmap(size, size)
     pixmap.fill(Qt.transparent)
     painter = QPainter(pixmap)
     painter.setRenderHint(QPainter.Antialiasing)
-    pen = QPen(QColor(theme.GREEN), max(2.0, size / 22.0))
+    pen = QPen(QColor(theme.PRIMARY), max(2.0, size / 22.0))
     pen.setJoinStyle(Qt.RoundJoin)
     painter.setPen(pen)
     m = size * 0.14
@@ -110,7 +110,7 @@ def shield_pixmap(size: int = 84) -> QPixmap:
     path.closeSubpath()
     painter.drawPath(path)
     # The keyhole: a filled dot and stem at the shield's heart.
-    painter.setBrush(QColor(theme.GREEN))
+    painter.setBrush(QColor(theme.PRIMARY))
     painter.setPen(Qt.NoPen)
     cx, cy = m + w / 2, m + h * 0.42
     r = size * 0.055

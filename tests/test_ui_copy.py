@@ -40,7 +40,8 @@ def test_palette_has_no_purple_and_no_light_colors():
         name: getattr(theme, name)
         for name in (
             "BG", "PANEL", "PANEL_BORDER", "TEXT", "TEXT_FAINT",
-            "GREEN", "GREEN_DARK_TEXT", "RED", "RED_TEXT",
+            "PRIMARY", "PRIMARY_HOVER", "PRIMARY_DARK_TEXT", "ACCENT",
+            "RED", "RED_TEXT",
             "INPUT_BG", "DISABLED_TEXT",
         )
     }
@@ -49,7 +50,7 @@ def test_palette_has_no_purple_and_no_light_colors():
         # Purple: blue dominant with red above green.
         assert not (b > r and b > g and r > g), f"{name} is purple: {value}"
         assert theme._luminance(value) < 0.75 or name in (
-            "TEXT", "GREEN", "RED_TEXT",
+            "TEXT", "PRIMARY", "RED_TEXT",
         ), f"{name} is a light color: {value}"
     sheet = theme.stylesheet()
     assert "purple" not in sheet.lower()
