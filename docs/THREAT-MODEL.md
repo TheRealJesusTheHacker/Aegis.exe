@@ -31,8 +31,9 @@ hold of it can read what is inside.
   files are checked piece by piece as they open. A file that was
   changed, cut short, mixed with pieces of another file, or
   given a header that asks for absurd amounts of computer memory
-  is refused with a plain-language message — before the heavy
-  sign-in work runs, and without opening any of it.
+  is refused with a plain-language message, without opening
+  any of it — and a bad header is refused before the heavy
+  sign-in work even runs.
 - **A lock landing in the middle of opening something.** If
   Aegis locks (you lock it, or the idle timer does) while a
   sealed file is being opened or a sealed backup set is being
