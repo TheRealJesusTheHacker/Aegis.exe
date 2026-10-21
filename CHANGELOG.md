@@ -5,6 +5,37 @@ the build phases in [docs/ROADMAP.md](docs/ROADMAP.md). No public
 release ships before the Phase 5 independent security audit gate —
 pre-release versions below are development milestones, not releases.
 
+## [1.0.5] — 2026-10-21
+
+### Added
+
+- **The rollback tripwire (roadmap B-13).** Aegis now
+  remembers the newest state of each vault it has seen on
+  this computer, in a small record kept outside the vault
+  file — check values only: no file names, no paths in plain
+  text, nothing about a vault's contents. Opening a vault
+  checks the record before any password work: a vault file
+  that comes back as a state this copy of Aegis has seen and
+  moved past — an old copy quietly put back in place, by sync
+  software or by a person — is refused, on both the password
+  and the recovery-key paths, and a password change moves the
+  remembered state forward like any other save. A damaged
+  record refuses too, and is never silently replaced. The
+  honest limits are stated in the threat model: a state this
+  copy has never seen (the same vault changed on another
+  computer) is taken as current, because a check value cannot
+  tell time; and an older record put back together with an
+  older vault defeats the tripwire. A first run, with no
+  record at all, works exactly as before. 14 new tests pin
+  the trip, the normal paths, and the failure shapes.
+
+### Decisions
+
+- **Browser autofill is closed permanently (roadmap B-12).**
+  The vault's isolation is the product — "It does not open" —
+  and a browser-bridge surface is the credential-theft vector
+  the design exists to refuse. It will not be scheduled.
+
 ## [1.0.4] — 2026-10-21
 
 ### Fixed

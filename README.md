@@ -2,7 +2,7 @@
 
 **Sentinel Safeguard LLC — file encryption and password manager for Windows.**
 
-[![Version](https://img.shields.io/badge/version-v1.0.4-d29f3c?style=flat-square)](https://github.com/TheRealJesusTheHacker/Aegis.exe/blob/main/aegis/__init__.py)
+[![Version](https://img.shields.io/badge/version-v1.0.5-d29f3c?style=flat-square)](https://github.com/TheRealJesusTheHacker/Aegis.exe/blob/main/aegis/__init__.py)
 [![Platform](https://img.shields.io/badge/platform-Windows-0078D6?style=flat-square&logo=windows&logoColor=white)](https://github.com/TheRealJesusTheHacker/Aegis.exe)
 [![Python](https://img.shields.io/badge/Python-3-3776AB?style=flat-square&logo=python&logoColor=white)](https://www.python.org/)
 [![License](https://img.shields.io/badge/license-Proprietary-b03a2e?style=flat-square)](https://github.com/TheRealJesusTheHacker/Aegis.exe/blob/main/LICENSE)
@@ -75,8 +75,10 @@ Aegis, it is.
   writes your logins out in plain text — the reasoning is written
   down in [the import/export safety review](docs/IMPORT-EXPORT-SAFETY.md).
 
-Browser autofill integration is planned as a later phase — it is in
-the [roadmap](docs/ROADMAP.md) backlog, not promised for launch.
+Browser autofill is not coming — that decision is closed for
+good (see the [roadmap](docs/ROADMAP.md)): the vault's isolation
+is the product, and a bridge into the browser is exactly the
+way in Aegis exists to refuse.
 
 ## The crypto, stated plainly
 
@@ -108,10 +110,14 @@ against the code:
 - **Two truths, stated plainly.** Changing your password does not
   re-encrypt your files, and a copy of the vault made before the
   change still opens with the old password — no sealed file can
-  unsend its copies. And if a vault file is ever replaced wholesale
-  with an older copy of itself, Aegis opens the older copy: a sealed
-  file can't tell time. Keep your own backups straight, and treat
-  old copies like old keys.
+  unsend its copies. And a sealed file can't tell time — so since
+  v1.0.5 Aegis remembers, outside the vault file, the newest state
+  of each vault it has seen on this computer, and refuses a file
+  that comes back as a state it has seen and moved past. A state
+  it has never seen (the same vault changed on another computer)
+  is taken as current — that limit is stated in full in the
+  [threat model](docs/THREAT-MODEL.md). Keep your own backups
+  straight, and treat old copies like old keys.
 
 Before any public release, Aegis passes an independent security audit
 gate — threat model, crypto review, key-derivation parameter
@@ -155,7 +161,21 @@ every control does what it says.
 
 ## Status
 
-**v1.0.4 — SHIPPED 2026-10-21.**
+**v1.0.5 — SHIPPED 2026-10-21.**
+The rollback tripwire: Aegis now remembers the newest state of
+each vault it has seen on this computer, outside the vault file,
+and refuses a vault file that comes back as a state it has seen
+and moved past — the silent rollback the sealed file alone could
+never catch. The record holds check values only, and its honest
+limits (a state never seen here is taken as current; an old
+record restored together with an old vault defeats it) are
+stated in the [threat model](docs/THREAT-MODEL.md). This release
+also closes the browser-autofill question for good — see the
+[roadmap](docs/ROADMAP.md). Get it from the
+[v1.0.5 release](https://github.com/TheRealJesusTheHacker/Aegis.exe/releases/tag/v1.0.5)
+— `Aegis.exe`, `AegisPortable.zip`, and `SHA256SUMS.txt`.
+
+Before this version, **v1.0.4 — SHIPPED 2026-10-21.**
 A patch release from the fleet sweep: closing the window
 while work is still running (sealing a very large file above
 all) no longer tears the app down — the close waits for short
@@ -223,8 +243,11 @@ not at all if Aegis locked while the work ran); and, since
 v1.0.4, the two timing settings (the quiet-time lock and the
 clipboard stay) are kept in a small per-person settings file
 — those two numbers and nothing else, no vault content and
-no file names. There is no hidden data folder and no claim
-of one.
+no file names. Since v1.0.5 a second small per-person file
+keeps the rollback tripwire's record: for each vault, check
+values of the newest state Aegis has seen and the states it
+moved past — again, no vault content and no file names. There
+is no hidden data folder and no claim of one.
 
 Before this version, **v0.5.0 — Phase 4 complete: the
 interface** — one window over the whole core: a locked screen

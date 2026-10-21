@@ -58,14 +58,22 @@ hold of it can read what is inside.
   Sentinel Safeguard. Losing both means the vault does not open
   — for anyone, including you. This is stated before your first
   vault exists, at setup, in plain words.
-- **An older copy of a vault put back in place.** If someone
-  replaces your vault file, whole, with an older copy of the
-  same vault (a backup restored by syncing software, say), the
-  older copy opens as what it is: the older state. A file on its
-  own cannot tell time, so no sealed-file program can detect a
-  whole-file swap like this. Keep backups the way you would keep
+- **An older copy of a vault put back in place — mostly
+  stopped, with honest edges.** Since v1.0.5, Aegis remembers,
+  outside the vault file, the newest state of each vault it has
+  seen on this computer. If the vault file is replaced, whole,
+  with a copy whose state this computer has seen and moved past
+  (a backup restored by syncing software, say), Aegis refuses
+  to open it and says why. The edges, stated plainly: a state
+  this computer has *never* seen — the same vault changed on
+  another computer, above all — is taken as current, because a
+  check value cannot tell time; and someone who puts back an
+  older copy of Aegis's remembered state *together with* the
+  older vault defeats the check, because the remembered state
+  is an ordinary file too. Keep backups the way you would keep
   the vault itself — sealed does not mean "safe to leave the old
-  copies anywhere": each old copy still opens with your password.
+  copies anywhere": each old copy still opens with your password
+  on a computer that has never seen a newer one.
 - **Copies you made on purpose.** Anything you copy out of
   Aegis — a password pasted into a form, a file you opened out
   of the vault, a document in the Strongbox that you saved

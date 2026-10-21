@@ -51,6 +51,19 @@ a key is erasable — the primary buffers are wiped, and the full
 memory-handling review belongs to Phase 5. Phase 4 note: the app
 should remember the newest vault state it has seen, outside the
 vault file, as one more tripwire against silent rollback.
+**Done in v1.0.5 (B-13):** `aegis/freshness.py` keeps that memory
+— for each vault at each place, the check value of the newest
+state seen and of the states it moved past, in a small file of
+check values only (no file names, no contents). The vault open
+path checks it before any password work: a file that comes back
+as a state this copy has seen and moved past is refused, and a
+damaged record refuses too rather than quietly starting over.
+The choice where the note was silent — refuse, not warn — follows
+the product's posture: it does not open. The honest limits are
+stated in the threat model and stand: a state this copy has
+never seen is taken as current (a check value cannot tell time),
+and an older record put back together with an older vault
+defeats the tripwire — a tripwire, not a proof.
 
 The heart of the product, built first and built carefully.
 
@@ -346,10 +359,10 @@ passes. This is a hard gate, not a milestone.**
 
 ## Later / backlog
 
-- **Browser autofill integration** — browser extension / native
-  messaging so the password vault can fill logins in place. Later by
-  design: it widens the attack surface, and it gets its own security
-  review before it is scheduled.
+- **Browser autofill integration** — **CLOSED 2026-10-21 (B-12),
+  permanently.** Closed permanently — the vault's isolation is the
+  product ("It does not open"); a browser-bridge surface is the
+  credential-theft vector the design exists to refuse.
 - Technician's Toolkit USB bundling — the Phase 5 portable edition
   (see above) packaged into the Technician's Toolkit USB set,
   alongside the rest of the medic kit.
