@@ -44,6 +44,7 @@ from .errors import (
     VaultExistsError,
     VaultFormatError,
     VaultLockedError,
+    VaultRolledBackError,
     VaultSaveError,
     VaultTamperedError,
     WeakPasswordError,
@@ -95,7 +96,7 @@ from .strongbox import (
 from .transfer import export_sealed_copy, import_from_vault
 from .vault import CreatedVault, Vault, VaultSession
 
-__version__ = "1.0.4"
+__version__ = "1.0.5"
 
 __all__ = [
     "__version__",
@@ -111,6 +112,7 @@ __all__ = [
     "VaultExistsError",
     "VaultFormatError",
     "VaultLockedError",
+    "VaultRolledBackError",
     "VaultSaveError",
     "VaultTamperedError",
     "WeakPasswordError",

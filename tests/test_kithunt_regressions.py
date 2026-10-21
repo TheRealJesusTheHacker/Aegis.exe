@@ -224,8 +224,15 @@ def test_vault_save_waits_out_a_briefly_busy_file(tmp_path, monkeypatch):
     session.write("note.txt", b"hello")
     real_replace = os.replace
     attempts = {"count": 0}
+    vault_file = tmp_path / "v.aegis"
 
     def flaky_replace(src, dst):
+        # Only the vault file's own publish is made flaky (and
+        # counted): since v1.0.5 a save also publishes the
+        # rollback tripwire's record, a separate file whose
+        # publish is not this regression's subject.
+        if Path(dst) != vault_file:
+            return real_replace(src, dst)
         attempts["count"] += 1
         if attempts["count"] <= 2:
             raise PermissionError(errno.EACCES, "busy for a moment")

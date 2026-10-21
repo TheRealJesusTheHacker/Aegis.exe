@@ -18,6 +18,13 @@ Cryptography (vetted libraries only, never hand-rolled):
   a nonce is never reused under the vault key for new plaintext.
 - Keys in memory are held as ``bytearray`` and zeroed after use and
   on lock.
+- Beside the core, the rollback tripwire (B-13,
+  :mod:`aegis.freshness`): the newest vault state this copy of
+  Aegis has seen is remembered outside the vault file, and the
+  open path refuses a file that comes back as a state it has
+  seen and moved past. It works on the file fingerprint the open
+  and save paths already compute; it changes no format, no
+  algorithm, and no signature in this module.
 
 A note on memory hygiene, stated honestly: the *primary* buffers
 this module owns — the session vault key, the derived wrapping
@@ -63,6 +70,7 @@ from .errors import (
     WrongRecoveryKeyError,
 )
 from .format import Header
+from .freshness import check_freshness, remember_freshness
 from .kdf import DEFAULT_PARAMS, KdfParams, derive_key, validate_params
 from .publish import link_into_place, replace_with_retry
 from .passwords import MIN_PASSWORD_LENGTH
@@ -359,6 +367,13 @@ class VaultSession:
             raise VaultSaveError() from None
         self._fingerprint = self._fingerprint_of(data)
         self._dirty = False
+        # The rollback tripwire (B-13): the state just written is
+        # the newest this copy of Aegis has seen. Best-effort —
+        # a state that cannot be remembered never turns a landed
+        # save into a failure.
+        remember_freshness(
+            self._path, self._header.vault_id, self._fingerprint
+        )
 
     def _publish_new(self) -> None:
         """Publish a brand-new vault file, refusing to overwrite.
@@ -377,6 +392,11 @@ class VaultSession:
             raise VaultSaveError() from None
         self._fingerprint = self._fingerprint_of(data)
         self._dirty = False
+        # A new vault's first state is remembered for the
+        # rollback tripwire, like any state a save lands (B-13).
+        remember_freshness(
+            self._path, self._header.vault_id, self._fingerprint
+        )
 
     # -- credential changes ---------------------------------------------------
 
@@ -692,6 +712,10 @@ class Vault:
             WrongRecoveryKeyError: if the recovery key does not open it.
             VaultTamperedError: if a credential opens the vault but
                 the contents fail their checks.
+            VaultRolledBackError: if the file is a vault state this
+                copy of Aegis has seen and moved past (the rollback
+                tripwire, aegis.freshness), or the remembered state
+                it would be checked against is damaged.
         """
         if (password is None) == (recovery_key is None):
             raise ValueError(
@@ -702,6 +726,14 @@ class Vault:
         # Strict header validation (including KDF floors/ceilings)
         # happens here, before any key derivation runs.
         header = _format.decode_header(header_json)
+        # The rollback tripwire (B-13, aegis.freshness): refuse a
+        # vault file that comes back as a state this copy of Aegis
+        # has seen and moved past, and refuse when the remembered
+        # state itself is damaged. Beside the crypto core, on
+        # fingerprints only — and before any key derivation, so a
+        # rolled-back vault costs no password work and reveals
+        # nothing about whether a password would have opened it.
+        check_freshness(target, header.vault_id, fingerprint)
 
         using_password = password is not None
         if using_password:
@@ -741,6 +773,12 @@ class Vault:
         except BaseException:
             _zero(vault_key)
             raise
+        # The vault opened and checked out: this state is now the
+        # newest this copy of Aegis has seen (adopting a state it
+        # had never seen, per the tripwire's stated limits).
+        # Best-effort; a failure to remember never fails an open
+        # that already succeeded.
+        remember_freshness(target, header.vault_id, fingerprint)
         return VaultSession(
             target, header, vault_key, entries, created_utc,
             fingerprint=fingerprint,

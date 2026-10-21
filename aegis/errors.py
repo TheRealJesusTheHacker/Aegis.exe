@@ -100,6 +100,22 @@ class VaultSaveError(AegisError):
     )
 
 
+class VaultRolledBackError(AegisError):
+    """The vault file is a state Aegis has seen and moved past.
+
+    Raised by the rollback tripwire (aegis.freshness): this copy
+    of Aegis remembers the newest vault state it has seen,
+    outside the vault file, and a file that comes back as an
+    older state is refused rather than opened.
+    """
+
+    user_message = (
+        "This vault file is an older copy than the newest one "
+        "Aegis has seen on this computer, so Aegis won't open "
+        "it. Open the newest copy of this vault instead."
+    )
+
+
 class VaultChangedOnDiskError(AegisError):
     """The vault file changed on disk after this session opened it."""
 
