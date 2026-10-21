@@ -219,9 +219,12 @@ test, checksums); and the portable edition below.
 and runs with no installation. What it writes, honestly: your
 vault files live where you put them and are opened in place;
 files you open out of a vault are written where you choose (and
-not at all if Aegis locked while the work ran); app settings
-are kept for that run only — this edition saves no settings
-file. There is no hidden data folder and no claim of one.
+not at all if Aegis locked while the work ran); and, since
+v1.0.4, the two timing settings (the quiet-time lock and the
+clipboard stay) are kept in a small per-person settings file
+— those two numbers and nothing else, no vault content and
+no file names. There is no hidden data folder and no claim
+of one.
 
 Before this version, **v0.5.0 — Phase 4 complete: the
 interface** — one window over the whole core: a locked screen
