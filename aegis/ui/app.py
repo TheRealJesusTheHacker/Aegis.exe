@@ -2242,7 +2242,19 @@ class SettingsPage(QWidget):
             idle_seconds=self.idle_minutes.value() * 60,
             clear_after_seconds=self.clear_seconds.value(),
         )
-        self.status.setText("Settings are in use for this time in Aegis.")
+        if getattr(self._controller, "_settings_path", None) is None:
+            self.status.setText(
+                "Settings are in use for this time in Aegis."
+            )
+        elif self._controller.settings_save_failed:
+            self.status.setText(
+                "Settings are in use for this time in Aegis — "
+                "they could not be saved for next time."
+            )
+        else:
+            self.status.setText(
+                "Settings saved — Aegis will use them next time too."
+            )
 
     def _change_password(self) -> None:
         self.banner.clear()
@@ -2843,7 +2855,11 @@ def build_window(controller: VaultController = None) -> MainWindow:
     from .clipboard_qt import QtClipboard
 
     if controller is None:
-        controller = VaultController(QtClipboard())
+        from ..settings import default_settings_path
+
+        controller = VaultController(
+            QtClipboard(), settings_path=default_settings_path()
+        )
     return MainWindow(controller)
 
 

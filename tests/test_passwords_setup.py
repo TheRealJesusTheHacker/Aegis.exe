@@ -162,7 +162,7 @@ def test_no_banned_jargon_in_user_facing_copy(label):
 # -- public exports ---------------------------------------------------------------
 
 def test_public_exports():
-    assert aegis.__version__ == "1.0.3"
+    assert aegis.__version__ == "1.0.4"
     for name in ("Vault", "VaultSession", "CreatedVault", "password_feedback",
                  "MASTER_PASSWORD_WARNING", "RECOVERY_KEY_GUIDANCE",
                  "printable_recovery_sheet"):

@@ -51,6 +51,7 @@ from ..idle import DEFAULT_IDLE_SECONDS, IdleGuard
 from ..kdf import DEFAULT_PARAMS
 from ..locksend import open_sealed_file, seal_file
 from ..publish import rename_with_retry
+from ..settings import load_settings, save_settings
 from ..strongbox import MAX_DOCUMENT_BYTES, Strongbox
 from ..transfer import export_sealed_copy, import_from_vault
 from ..vault import Vault
@@ -83,11 +84,23 @@ def user_text(exc: BaseException) -> str:
 class VaultController:
     """Owns one vault session and everything the window does with it."""
 
-    def __init__(self, clipboard=None, *, clock=time.monotonic):
+    def __init__(self, clipboard=None, *, clock=time.monotonic,
+                 settings_path=None):
         self._port = clipboard if clipboard is not None else MemoryClipboard()
         self._clock = clock
         self.clear_after_seconds = float(DEFAULT_CLEAR_AFTER_SECONDS)
         self.idle_seconds = float(DEFAULT_IDLE_SECONDS)
+        # Saved timings, when the caller wires a settings file
+        # (the app does; headless callers need not). A damaged or
+        # missing file changes nothing — the defaults stand.
+        self._settings_path = settings_path
+        self.settings_save_failed = False
+        if settings_path is not None:
+            saved = load_settings(settings_path)
+            if "idle_seconds" in saved:
+                self.idle_seconds = saved["idle_seconds"]
+            if "clear_after_seconds" in saved:
+                self.clear_after_seconds = saved["clear_after_seconds"]
         self._auto_clip = self._new_auto_clip()
         self._session = None
         self._store = None
@@ -247,6 +260,12 @@ class VaultController:
                     clock=self._clock,
                 )
                 self._guard.touch()
+        if self._settings_path is not None:
+            self.settings_save_failed = not save_settings(
+                self._settings_path,
+                idle_seconds=self.idle_seconds,
+                clear_after_seconds=self.clear_after_seconds,
+            )
 
     # -- passwords ------------------------------------------------------
 

@@ -5,6 +5,36 @@ the build phases in [docs/ROADMAP.md](docs/ROADMAP.md). No public
 release ships before the Phase 5 independent security audit gate —
 pre-release versions below are development milestones, not releases.
 
+## [1.0.4] — 2026-10-21
+
+### Fixed
+
+- **Closing the window while work is still running can no
+  longer tear the app down.** Every background job (sealing,
+  opening, unlocking, installing) runs on a thread the window
+  owns, and a thread destroyed while it is still running
+  aborts the whole process. The close path waited a few
+  seconds for jobs to finish and then closed anyway — and
+  sealing a very large file, one of Aegis's headline jobs,
+  can run far longer than that. The window now waits briefly
+  for short jobs and refuses the close while any job is
+  still running, staying open with the job's progress on
+  screen; closing again once the work has finished closes
+  normally. The final lock also runs only after no job is
+  in flight, so it can never race one.
+
+### Added
+
+- **The timing settings are saved between runs.** The
+  quiet-time lock and the clipboard stay, set on the Settings
+  screen, are written to a small settings file (the two
+  numbers and nothing else — no vault content, no file
+  names) and loaded again at the next start, held to the
+  same ranges the screen offers. A settings file that is
+  missing or damaged is ignored and the built-in defaults
+  apply; if a save cannot be made, the screen says the
+  settings are in use for this time only.
+
 ## [1.0.3] — 2026-10-20
 
 ### Changed

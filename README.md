@@ -2,7 +2,7 @@
 
 **Sentinel Safeguard LLC — file encryption and password manager for Windows.**
 
-[![Version](https://img.shields.io/badge/version-v1.0.3-d29f3c?style=flat-square)](https://github.com/TheRealJesusTheHacker/Aegis.exe/blob/main/aegis/__init__.py)
+[![Version](https://img.shields.io/badge/version-v1.0.4-d29f3c?style=flat-square)](https://github.com/TheRealJesusTheHacker/Aegis.exe/blob/main/aegis/__init__.py)
 [![Platform](https://img.shields.io/badge/platform-Windows-0078D6?style=flat-square&logo=windows&logoColor=white)](https://github.com/TheRealJesusTheHacker/Aegis.exe)
 [![Python](https://img.shields.io/badge/Python-3-3776AB?style=flat-square&logo=python&logoColor=white)](https://www.python.org/)
 [![License](https://img.shields.io/badge/license-Proprietary-b03a2e?style=flat-square)](https://github.com/TheRealJesusTheHacker/Aegis.exe/blob/main/LICENSE)
@@ -155,7 +155,18 @@ every control does what it says.
 
 ## Status
 
-**v1.0.3 — SHIPPED 2026-10-20.**
+**v1.0.4 — SHIPPED 2026-10-21.**
+A patch release from the fleet sweep: closing the window
+while work is still running (sealing a very large file above
+all) no longer tears the app down — the close waits for short
+work and is refused, plainly, while long work runs, exactly
+the way the rest of the kit treats a run in flight. The two
+timing settings (the quiet-time lock and the clipboard stay)
+are also saved now and come back next run. Get it from the
+[v1.0.4 release](https://github.com/TheRealJesusTheHacker/Aegis.exe/releases/tag/v1.0.4)
+— `Aegis.exe`, `AegisPortable.zip`, and `SHA256SUMS.txt`.
+
+Before this version, **v1.0.3 — SHIPPED 2026-10-20.**
 A patch release that gives Aegis its own face: bronze and
 steel on near-black, in place of the green the whole kit
 shared. Screens, words, and behavior are unchanged — this

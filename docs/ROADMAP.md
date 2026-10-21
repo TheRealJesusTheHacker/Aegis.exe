@@ -267,7 +267,8 @@ seam, and those are fixed and pinned too. Packaging prep ships in
 `packaging/` (one-folder spec in the kit pattern + a `--self-check`
 launch smoke hook, proven against a real build) — the release
 itself waits for Phase 5's gate, exactly as planned. Honest
-unproven items: settings are per-run, not yet saved between runs;
+unproven items: settings were per-run at this phase (they are
+saved between runs since v1.0.4);
 the real-desktop clipboard and idle behavior are wired to the real
 Qt seams and proven offscreen, and a first run on real Windows
 hardware is still owed; the vault's file path stays visible on the
