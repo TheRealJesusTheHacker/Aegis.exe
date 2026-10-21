@@ -2799,6 +2799,29 @@ class MainWindow(QMainWindow):
             self.main_screen.show_section("passwords")
 
     def closeEvent(self, event) -> None:
+        # Workers first, before anything else — even before the
+        # final lock, which must never race work in flight. A
+        # worker thread (a seal, an unlock) is this window's
+        # child, and a QThread destroyed while it is still
+        # running aborts the whole process. Most workers are
+        # short, so give each a bounded wait to finish; but a
+        # long one — sealing a very large file can run for
+        # minutes — must not be waited out and then closed over
+        # anyway. If any worker is still running after its wait,
+        # the close is refused and the window stays open with
+        # the work's own busy display showing; closing again
+        # once the work has finished closes normally. (The same
+        # refusal the medic kit's other windows make: a run in
+        # flight is never interrupted by closing.)
+        running = [
+            thread for thread in self.findChildren(QThread)
+            if thread.isRunning()
+        ]
+        for thread in running:
+            thread.wait(5000)
+        if any(thread.isRunning() for thread in running):
+            event.ignore()
+            return
         self._close_open_dialogs()
         try:
             self._controller.lock()
@@ -2807,13 +2830,6 @@ class MainWindow(QMainWindow):
             # failed final save is reported the next time the vault
             # is opened, by the core's own freshness checks.
             pass
-        # Let any worker still running (a seal, an unlock) finish
-        # before the window goes: a thread torn down mid-run can
-        # take the process with it. Bounded — these are short
-        # operations, and closing must not hang either.
-        for thread in self.findChildren(QThread):
-            if thread.isRunning():
-                thread.wait(5000)
         super().closeEvent(event)
 
 
