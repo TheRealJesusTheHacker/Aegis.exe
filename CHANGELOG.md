@@ -26,7 +26,7 @@ pre-release versions below are development milestones, not releases.
   computer) is taken as current, because a check value cannot
   tell time; and an older record put back together with an
   older vault defeats the tripwire. A first run, with no
-  record at all, works exactly as before. 14 new tests pin
+  record at all, works exactly as before. 17 new tests pin
   the trip, the normal paths, and the failure shapes.
 
 ### Decisions
