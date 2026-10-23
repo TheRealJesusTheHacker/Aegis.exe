@@ -14,8 +14,16 @@ WHAT THIS EDITION WRITES, AND WHERE — the honest list:
   sealed backup set, are written where you choose at that
   moment — and only if Aegis has not locked in the meantime; if
   it locks while the work runs, nothing is placed.
-- Settings inside the app (like the idle-lock time) are kept
-  for that run only; this edition saves no settings file.
+- Two small per-person files are kept outside this folder,
+  in Aegis's per-person folder on the machine (the Aegis
+  folder under %LOCALAPPDATA% on Windows): settings.json,
+  holding only the two timing choices (the idle-lock time
+  and how long a copied password stays) — saved between
+  runs since v1.0.4 — and, since v1.0.5, vault-state.json,
+  the rollback tripwire's record: check values of the
+  newest vault states this copy of Aegis has seen, and of
+  the states it moved past. Neither file holds any vault
+  content or file names.
 - The working copies Aegis holds in memory while a vault is
   open are the operating system's business (any running program
   can be paged to disk by the system); the vault files on disk
