@@ -96,7 +96,7 @@ from .strongbox import (
 from .transfer import export_sealed_copy, import_from_vault
 from .vault import CreatedVault, Vault, VaultSession
 
-__version__ = "1.0.5"
+__version__ = "1.0.6"
 
 __all__ = [
     "__version__",

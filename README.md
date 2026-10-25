@@ -2,7 +2,7 @@
 
 **Sentinel Safeguard LLC — file encryption and password manager for Windows.**
 
-[![Version](https://img.shields.io/badge/version-v1.0.5-d29f3c?style=flat-square)](https://github.com/TheRealJesusTheHacker/Aegis.exe/blob/main/aegis/__init__.py)
+[![Version](https://img.shields.io/badge/version-v1.0.6-d29f3c?style=flat-square)](https://github.com/TheRealJesusTheHacker/Aegis.exe/blob/main/aegis/__init__.py)
 [![Platform](https://img.shields.io/badge/platform-Windows-0078D6?style=flat-square&logo=windows&logoColor=white)](https://github.com/TheRealJesusTheHacker/Aegis.exe)
 [![Python](https://img.shields.io/badge/Python-3-3776AB?style=flat-square&logo=python&logoColor=white)](https://www.python.org/)
 [![License](https://img.shields.io/badge/license-Proprietary-b03a2e?style=flat-square)](https://github.com/TheRealJesusTheHacker/Aegis.exe/blob/main/LICENSE)
@@ -161,7 +161,18 @@ every control does what it says.
 
 ## Status
 
-**v1.0.5 — SHIPPED 2026-10-21.**
+**v1.0.6 — SHIPPED 2026-10-25.**
+A maintenance release: dependency installs are hash-locked
+now — the test and release workflows install from the
+committed lock files with `--require-hashes`, so every
+package is checked against a recorded fingerprint before it
+is used, and a mismatch stops the install. No dependency
+version changed and no behavior changed; a full functional
+bug hunt on this tree found nothing to fix. Get it from the
+[v1.0.6 release](https://github.com/TheRealJesusTheHacker/Aegis.exe/releases/tag/v1.0.6)
+— `Aegis.exe`, `AegisPortable.zip`, and `SHA256SUMS.txt`.
+
+Before this version, **v1.0.5 — SHIPPED 2026-10-21.**
 The rollback tripwire: Aegis now remembers the newest state of
 each vault it has seen on this computer, outside the vault file,
 and refuses a vault file that comes back as a state it has seen

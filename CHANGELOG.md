@@ -5,6 +5,33 @@ the build phases in [docs/ROADMAP.md](docs/ROADMAP.md). No public
 release ships before the Phase 5 independent security audit gate —
 pre-release versions below are development milestones, not releases.
 
+## [1.0.6] — 2026-10-25
+
+### Changed
+
+- **Dependency installs are hash-locked now.** Every install
+  of Aegis's dependencies — the test workflow and the release
+  workflow alike — now runs from the committed lock files
+  (`requirements.lock.txt` for the app, `requirements-build.lock.txt`
+  for the build and test tools) with `pip install
+  --require-hashes`: each downloaded package is checked
+  against the exact fingerprint recorded in the lock, and a
+  mismatch stops the install instead of slipping through.
+  This is the fleet-wide policy Sentinel adopted on
+  2026-10-25. No dependency version the app pins was changed
+  — the locks freeze the versions already in use.
+
+### Verified
+
+- **A full functional bug hunt ran on this tree and found
+  nothing to fix.** The vault, sealed-file, and armored-set
+  round-trips, the wrong-password refusals, every screen and
+  every navigation control were exercised headlessly, on top
+  of the full suite (527 passed, 2 skipped — the same count
+  as v1.0.5's tree plus the hash-lock change). This release
+  changes no behavior: it is v1.0.5 with its install path
+  made verifiable.
+
 ## [1.0.5] — 2026-10-21
 
 ### Added
