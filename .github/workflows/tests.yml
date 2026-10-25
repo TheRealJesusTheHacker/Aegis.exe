@@ -15,6 +15,6 @@ jobs:
       - name: Qt system libraries (Linux runners ship without them)
         if: runner.os == 'Linux'
         run: sudo apt-get update -qq || true; sudo apt-get install -y -qq libegl1 libgl1 libxkbcommon-x11-0 libfontconfig1 libdbus-1-3
-      - run: pip install -r requirements.txt -r requirements-build.txt
+      - run: pip install --require-hashes -r requirements.lock.txt -r requirements-build.lock.txt
       - run: python -m pytest tests/ -q
         env: { QT_QPA_PLATFORM: offscreen }
