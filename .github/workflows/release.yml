@@ -120,7 +120,7 @@ jobs:
               lines.append(f"{hashlib.sha256(data).hexdigest()}  {name}")
           open("SHA256SUMS.txt", "w").write("\n".join(lines) + "\n")
           print("\n".join(lines))
-      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with: { name: aegis-assets, path: "dist/Aegis/Aegis.exe\nAegisPortable.zip\nSHA256SUMS.txt" }
       - name: Create the release if it does not exist yet
         if: inputs.version != ''
